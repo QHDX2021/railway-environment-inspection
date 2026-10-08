@@ -21,22 +21,45 @@ DownloadReport TaskDownloader::download(const std::string& task_id,
     return report;
   }
   const auto part = destination.string() + ".part";
-  std::ofstream output(part, std::ios::binary | std::ios::trunc);
+  uint64_t existing = 0;
+  const bool has_part = std::filesystem::exists(part, error);
+  if (error) {
+    report.status = Status::failure(ErrorCode::IoError, error.message());
+    return report;
+  }
+  if (has_part) {
+    existing = std::filesystem::file_size(part, error);
+    if (error) {
+      report.status = Status::failure(ErrorCode::IoError, "inspect partial download");
+      return report;
+    }
+  }
+  std::ofstream output(part, std::ios::binary |
+                                (existing == 0 ? std::ios::trunc : std::ios::app));
   if (!output) {
     report.status = Status::failure(ErrorCode::IoError, "open temporary download");
     return report;
   }
 
-  auto remote = service_.download(task_id, file_id, {}, [&](ByteView chunk) {
+  auto remote = service_.download(task_id, file_id, {existing, 0}, [&](ByteView chunk) {
     if (token.cancelled()) return Status::failure(ErrorCode::Cancelled, "download cancelled");
     output.write(reinterpret_cast<const char*>(chunk.data), static_cast<std::streamsize>(chunk.size));
     if (!output) return Status::failure(ErrorCode::IoError, "write temporary download");
-    if (progress) progress({static_cast<uint64_t>(output.tellp()), 0});
+    const auto position = output.tellp();
+    if (position < 0) return Status::failure(ErrorCode::IoError, "inspect temporary download");
+    if (progress) progress({static_cast<uint64_t>(position), 0});
     return Status::success();
   });
   output.close();
   if (!remote.status.ok()) {
+    if (remote.status.code != ErrorCode::Cancelled && remote.status.code != ErrorCode::IoError) {
+      std::filesystem::remove(part, error);
+    }
+    return remote;
+  }
+  if (remote.bytes + existing != remote.total_bytes) {
     std::filesystem::remove(part, error);
+    remote.status = Status::failure(ErrorCode::CorruptData, "download length mismatch");
     return remote;
   }
   std::filesystem::remove(destination, error);
@@ -47,7 +70,7 @@ DownloadReport TaskDownloader::download(const std::string& task_id,
     remote.status = Status::failure(ErrorCode::IoError, "commit downloaded file");
     return remote;
   }
-  if (progress) progress({remote.bytes, remote.bytes});
+  if (progress) progress({remote.total_bytes, remote.total_bytes});
   return remote;
 }
 

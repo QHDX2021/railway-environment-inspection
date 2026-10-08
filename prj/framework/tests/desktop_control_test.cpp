@@ -40,6 +40,38 @@ static void run() {
   CHECK_EQ(std::filesystem::file_size(destination), 6u);
   CHECK(!std::filesystem::exists(destination.string() + ".part"));
 
+  const auto resumed_destination = root / "resumed.bin";
+  const auto resumed_part = std::filesystem::path(resumed_destination.string() + ".part");
+  std::ofstream(resumed_part, std::ios::binary) << "ab";
+  auto resumed_report = downloader.download("task-1", "data.rrec", resumed_destination, {}, {});
+  CHECK(resumed_report.status.ok());
+  CHECK_EQ(resumed_report.bytes, 4u);
+  CHECK_EQ(resumed_report.total_bytes, 6u);
+  std::ifstream resumed_input(resumed_destination, std::ios::binary);
+  CHECK_EQ(std::string((std::istreambuf_iterator<char>(resumed_input)), {}), std::string("abcdef"));
+
+  std::filesystem::create_directories(root / "task-2");
+  const std::string large_data(100000, 'z');
+  std::ofstream(root / "task-2" / "data.rrec", std::ios::binary).write(large_data.data(),
+                                                                           static_cast<std::streamsize>(large_data.size()));
+  std::ofstream(root / "task-2" / "complete") << "ok\n";
+  const auto interrupted_destination = root / "interrupted.bin";
+  std::atomic_bool interrupt{false};
+  auto interrupted_report = downloader.download(
+      "task-2", "data.rrec", interrupted_destination, {&interrupt},
+      [&](const DownloadProgress& progress) {
+        if (progress.received > 0) interrupt.store(true);
+      });
+  CHECK_EQ(interrupted_report.status.code, ErrorCode::Cancelled);
+  CHECK(std::filesystem::exists(interrupted_destination.string() + ".part"));
+  CHECK(std::filesystem::file_size(interrupted_destination.string() + ".part") > 0);
+
+  std::atomic_bool resumed_cancel{false};
+  auto completed_report = downloader.download("task-2", "data.rrec", interrupted_destination,
+                                              {&resumed_cancel}, {});
+  CHECK(completed_report.status.ok());
+  CHECK_EQ(std::filesystem::file_size(interrupted_destination), large_data.size());
+
   std::atomic_bool cancelled{true};
   const auto cancelled_destination = root / "cancelled.bin";
   auto cancelled_report = downloader.download("task-1", "data.rrec", cancelled_destination,
