@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车载式铁路周边环境巡检设备 — 项目研发规划 V4.00</title>
+<style>
+:root {
+  --bg: #ffffff; --bg-alt: #f8fafc; --bg-card: #ffffff;
+  --border: #e2e8f0; --border-strong: #cbd5e1;
+  --text: #0f172a; --text-muted: #64748b; --text-soft: #94a3b8;
+  --primary: #0ea5e9; --primary-dark: #0284c7;
+  --success: #10b981; --success-bg: #d1fae5;
+  --warning: #f59e0b; --warning-bg: #fef3c7;
+  --danger: #ef4444; --danger-bg: #fee2e2;
+  --info-bg: #dbeafe; --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --p0: #dbeafe; --p1: #d1fae5; --p2: #fef3c7; --p3: #fed7aa; --p4: #fecaca;
+  --ai: #a855f7; --ai-bg: #f3e8ff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a; --bg-alt: #1e293b; --bg-card: #1e293b;
+    --border: #334155; --border-strong: #475569;
+    --text: #f1f5f9; --text-muted: #cbd5e1; --text-soft: #94a3b8;
+    --primary: #38bdf8; --primary-dark: #0ea5e9;
+    --success: #34d399; --success-bg: #064e3b;
+    --warning: #fbbf24; --warning-bg: #78350f;
+    --danger: #f87171; --danger-bg: #7f1d1d;
+    --info-bg: #1e3a8a;
+    --p0: #1e3a8a; --p1: #064e3b; --p2: #78350f; --p3: #7c2d12; --p4: #7f1d1d;
+    --ai: #c084fc; --ai-bg: #581c87;
+  }
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --bg-alt: #1e293b; --bg-card: #1e293b;
+  --border: #334155; --border-strong: #475569;
+  --text: #f1f5f9; --text-muted: #cbd5e1; --text-soft: #94a3b8;
+  --primary: #38bdf8; --primary-dark: #0ea5e9;
+  --success: #34d399; --success-bg: #064e3b;
+  --warning: #fbbf24; --warning-bg: #78350f;
+  --danger: #f87171; --danger-bg: #7f1d1d;
+  --info-bg: #1e3a8a;
+  --ai: #c084fc; --ai-bg: #581c87;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.6; padding: 24px;
+}
+.container { max-width: 1320px; margin: 0 auto; }
+header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid var(--primary); }
+h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.subtitle { color: var(--text-muted); font-size: 14px; }
+.version-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white; padding: 4px 12px;
+  border-radius: 6px; font-size: 13px;
+  font-weight: 600; margin-left: 12px;
+}
+.theme-toggle {
+  position: fixed; top: 16px; right: 16px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  font-size: 13px; color: var(--text);
+}
+.toc {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.toc h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+.toc ol { columns: 3; column-gap: 16px; font-size: 13px; line-height: 1.9; }
+.toc a { color: var(--primary); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+@media (max-width: 768px) { .toc ol { columns: 1; } }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; box-shadow: var(--shadow);
+}
+.kpi-card.highlight { border-color: var(--primary); background: linear-gradient(135deg, var(--info-bg), var(--bg-card)); }
+.kpi-card.ai { border-color: var(--ai); background: linear-gradient(135deg, var(--ai-bg), var(--bg-card)); }
+.kpi-label { color: var(--text-muted); font-size: 13px; margin-bottom: 8px; }
+.kpi-value { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+.kpi-value.success { color: var(--success); }
+.kpi-value.primary { color: var(--primary); }
+.kpi-value.warning { color: var(--warning); }
+.kpi-value.ai { color: var(--ai); }
+.kpi-unit { font-size: 14px; color: var(--text-muted); margin-left: 4px; }
+.kpi-meta { font-size: 12px; color: var(--text-soft); margin-top: 8px; }
+.section {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px;
+  margin-bottom: 24px; box-shadow: var(--shadow);
+}
+.section-title {
+  font-size: 18px; font-weight: 600;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+  content: ''; width: 4px; height: 18px;
+  background: var(--primary); border-radius: 2px;
+}
+.section-num { color: var(--primary); font-size: 14px; font-weight: 700; margin-right: 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+tr:hover { background: var(--bg-alt); }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.tag.success { background: var(--success-bg); color: var(--success); }
+.tag.warning { background: var(--warning-bg); color: var(--warning); }
+.tag.info { background: var(--info-bg); color: var(--primary-dark); }
+.tag.danger { background: var(--danger-bg); color: var(--danger); }
+.tag.ai { background: var(--ai-bg); color: var(--ai); }
+.alert {
+  padding: 14px 16px; border-radius: 8px;
+  background: var(--success-bg); color: var(--success);
+  border-left: 4px solid var(--success);
+  font-size: 14px; margin-bottom: 16px;
+}
+.alert strong { font-weight: 700; }
+.alert.info { background: var(--info-bg); color: var(--primary-dark); border-left-color: var(--primary); }
+.alert.warning { background: var(--warning-bg); color: var(--warning); border-left-color: var(--warning); }
+.alert.ai { background: var(--ai-bg); color: var(--ai); border-left-color: var(--ai); }
+.gantt {
+  display: grid; grid-template-columns: 220px repeat(12, 1fr);
+  gap: 2px; margin-top: 12px;
+  font-size: 11px;
+}
+.gantt-header { font-weight: 600; color: var(--text-muted); text-align: center; padding: 4px; font-size: 10px; }
+.gantt-row-label { padding: 6px 8px; font-size: 12px; font-weight: 500; }
+.gantt-cell { background: var(--bg-alt); border-radius: 2px; min-height: 24px; position: relative; }
+.gantt-cell.p0 { background: var(--p0); }
+.gantt-cell.p1 { background: var(--p1); }
+.gantt-cell.p2 { background: var(--p2); }
+.gantt-cell.p3 { background: var(--p3); }
+.gantt-cell.p4 { background: var(--p4); }
+.gantt-cell .label {
+  position: absolute; top: 50%; left: 4px; right: 4px;
+  transform: translateY(-50%); font-size: 10px; color: var(--text); font-weight: 600;
+  white-space: nowrap; overflow: hidden;
+}
+.cost-bar { height: 14px; background: var(--bg-alt); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.cost-fill { height: 100%; }
+.risk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 768px) { .risk-grid { grid-template-columns: 1fr; } }
+.risk-card { padding: 16px; background: var(--bg-alt); border-radius: 8px; }
+.risk-card h4 { font-size: 14px; margin-bottom: 12px; font-weight: 600; }
+.risk-card.warning h4 { color: var(--warning); }
+.risk-card.danger h4 { color: var(--danger); }
+.risk-card.success h4 { color: var(--success); }
+.risk-card ul { margin-left: 20px; font-size: 13px; line-height: 1.8; }
+.action-list { list-style: none; padding: 0; }
+.action-list li {
+  padding: 10px 12px; margin-bottom: 6px;
+  background: var(--bg-alt);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary);
+  font-size: 13px;
+}
+.action-list li .aw { color: var(--primary); font-weight: 700; margin-right: 8px; }
+.footer { text-align: center; padding: 16px; color: var(--text-soft); font-size: 12px; }
+.flow-diagram {
+  background: var(--bg-alt); padding: 14px; border-radius: 8px;
+  font-family: monospace; font-size: 12px; line-height: 1.7; overflow-x: auto;
+}
+.phase-row { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-alt); border-radius: 8px; margin-bottom: 8px; }
+.phase-tag { background: var(--primary); color: white; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 12px; min-width: 80px; text-align: center; }
+.spec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.spec-card { background: var(--bg-alt); padding: 12px 14px; border-radius: 8px; border-left: 3px solid var(--primary); }
+.spec-card .spec-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+.spec-card .spec-value { font-size: 16px; font-weight: 600; color: var(--text); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<h1>🚄 车载式铁路周边环境巡检设备 — 项目研发规划<span class="version-badge">V4.00</span></h1>
+<p class="subtitle">编制日期 2026-09-18 · 接手方案 · BOM 重构 · 含 PCB 自研核算 + AI 训练预算 · 项目启动 2026-10-08 · 周期 12 个月 · 团队 3 人</p>
+</header>
+
+<button class="theme-toggle" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')">🌓 切换主题</button>
+
+<div class="alert">
+<strong>📋 V4.00 核心变更（相对 V2.10）：</strong>
+（1）新增 <strong>①接手方案</strong> — 从硬件到软件全面接手车载单一产品线；
+（2）<strong>③ BOM 成本 / ④ 研发成本</strong>拆分为"人工 / 物料 / 办公及其他"三栏口径；
+（3）新增 <strong>⑩ PCB 自研一体化板核算</strong>详细章节；
+（4）调整目录结构为 12 章（接手方案 → 风险与权衡）。
+<strong>总预算维持 ≈ 152.3 万元</strong>（与 V2.10 一致）。
+</div>
+
+<div class="toc">
+<h3>📑 目录（V4.00 12 章）</h3>
+<ol>
+<li><a href="#sec1">接手方案（硬件→软件全线接手）</a></li>
+<li><a href="#sec2">预计研发周期（12 月甘特）</a></li>
+<li><a href="#sec3">预计 BOM 成本（单台 + 分层）</a></li>
+<li><a href="#sec4">预计研发成本（4.1 人工 / 4.2 物料 / 4.3 办公及其他）</a></li>
+<li><a href="#sec5">性能指标（点云 / 定位 / AI / 系统）</a></li>
+<li><a href="#sec6">元件及核心部件清单详情</a></li>
+<li><a href="#sec7">主要元件功能（按子系统）</a></li>
+<li><a href="#sec8">项目亮点（核心差异化）</a></li>
+<li><a href="#sec9">补齐配件 + 关键技术规格</a></li>
+<li><a href="#sec10">PCB 自研一体化板核算</a></li>
+<li><a href="#sec11">系统框架 + AI 异常识别训练预算</a></li>
+<li><a href="#sec12">风险与权衡</a></li>
+</ol>
+</div>
+
+<!-- ============== ① 接手方案 ============== -->
+<div class="section" id="sec1">
+<div class="section-title"><span class="section-num">①</span>接手方案 — 从硬件到软件，车载单一产品线全部接手</div>
+
+<div class="alert info">
+<strong>🎯 接手定位：</strong>基于现有车载式铁路周边环境巡检设备单一产品线（含硬件平台、软件栈、测试规范、生产工艺），<strong>从硬件到软件全栈接管</strong>，完成产品迭代、上车联调、AI 异常识别模块集成，<strong>12 个月内交付完整 V1.0 设备并上车联调</strong>。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">1.1 接手范围（5 大模块）</h3>
+<table>
+<thead>
+<tr><th class="num">#</th><th>模块</th><th>接手内容</th><th>负责人</th><th>完成节点</th></tr>
+</thead>
+<tbody>
+<tr><td class="num">1</td><td><strong>硬件平台</strong></td><td>整机结构 / LiDAR-IMU-RTK-相机 传感器组合 / 电源系统 / 存储 / 外壳 / PCB 一体化板</td><td>赵庆尧</td><td>★A5（2027-04）</td></tr>
+<tr><td class="num">2</td><td><strong>嵌入式固件</strong></td><td>STM32 同步触发 / PPS-PTP 时间同步 / 相机触发 / IMU SPI 采集 / 电源管理</td><td>嵌入式开发</td><td>★A5（2027-04）</td></tr>
+<tr><td class="num">3</td><td><strong>上位机软件</strong></td><td>Qt6 GUI / ROS2 Humble 数据流 / PCL 点云处理 / OpenCV 视觉 / SLAM 算法集成</td><td>PC 端开发</td><td>★A7（2027-06）</td></tr>
+<tr><td class="num">4</td><td><strong>AI 异常识别</strong></td><td>YOLOv8 多任务（异物/周边/施工）/ TensorRT 推理 / CVAT 标注闭环 / 上位机集成</td><td>PC 端开发</td><td>★A10-AI（2027-09）</td></tr>
+<tr><td class="num">5</td><td><strong>上车联调 & 测试</strong></td><td>车顶安装 / 振动测试 / 高低温 / 多场景路测 / IP65 防护验证 / 数据质量评估</td><td>全员</td><td>★A8（2027-08）</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">1.2 接手方法论（4 阶段）</h3>
+<div class="phase-row"><span class="phase-tag" style="background: var(--primary);">Phase A 摸底</span><span><strong>Month 1-2：</strong>现有产品线 BOM 核对 + 工艺评估 + 代码审查 + 团队组建 + 关键器件复购清单确认</span></div>
+<div class="phase-row"><span class="phase-tag" style="background: var(--success);">Phase B 重建</span><span><strong>Month 3-7：</strong>PCB 自研打板 / 外壳 v1 加工 / 整机联调 / SLAM 仿真 / AI 预研 + 预训练</span></div>
+<div class="phase-row"><span class="phase-tag" style="background: var(--warning);">Phase C 装车</span><span><strong>Month 8-10：</strong>上车联调 / 上位机 V1.0 / AI V1.0（公开数据 + 少量微调）/ 现场数据采集</span></div>
+<div class="phase-row"><span class="phase-tag" style="background: var(--danger);">Phase D 验收</span><span><strong>Month 11-12：</strong>多场景实测 / AI V2 微调 / 验收交付（V1.0 + AI V2.0 完整版）</span></div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">1.3 关键接手交付物（13 项）</h3>
+<table>
+<thead>
+<tr><th class="num">#</th><th>交付物</th><th>类型</th><th>完成节点</th><th>负责人</th></tr>
+</thead>
+<tbody>
+<tr><td class="num">1</td><td>《需求规格说明书 V1.0》</td><td>文档</td><td>★A1（2026-10-20）</td><td>赵庆尧</td></tr>
+<tr><td class="num">2</td><td>硬件原理图 + PCB 文件（嘉立创 4 层）</td><td>硬件</td><td>★A3（2027-01-15）</td><td>赵庆尧</td></tr>
+<tr><td class="num">3</td><td>外壳结构图（v1→v4 4 次迭代）</td><td>机械</td><td>2027-01 ~ 2027-09</td><td>赵庆尧</td></tr>
+<tr><td class="num">4</td><td>嵌入式固件源码 + 烧录工具</td><td>软件</td><td>★A5（2027-04-15）</td><td>嵌入式</td></tr>
+<tr><td class="num">5</td><td>PC 端软件安装包 + 用户手册</td><td>软件</td><td>2027-09（联调完善）</td><td>PC 端</td></tr>
+<tr><td class="num">6</td><td>SLAM 算法说明文档</td><td>算法</td><td>2027-06</td><td>赵庆尧</td></tr>
+<tr style="background: var(--ai-bg);"><td class="num">7</td><td><strong>AI 算法说明（V2.0 多任务）</strong></td><td>算法</td><td>2027-06</td><td>PC 端</td></tr>
+<tr style="background: var(--ai-bg);"><td class="num">8</td><td><strong>AI 训练报告（数据集 + 调参）</strong></td><td>算法</td><td>2027-09</td><td>PC 端</td></tr>
+<tr><td class="num">9</td><td>样机 V1.0 测试报告</td><td>测试</td><td>★A5（2027-04-15）</td><td>全员</td></tr>
+<tr><td class="num">10</td><td>上车联调报告</td><td>测试</td><td>★A7（2027-07-07）</td><td>全员</td></tr>
+<tr><td class="num">11</td><td>多场景实测报告</td><td>测试</td><td>★A8（2027-09-07）</td><td>全员</td></tr>
+<tr style="background: var(--ai-bg);"><td class="num">12</td><td><strong>AI 模型 V2.0 验收报告（mAP + 实时告警）</strong></td><td>测试</td><td>★A10-AI（2027-09-30）</td><td>PC 端</td></tr>
+<tr><td class="num">13</td><td>项目总结报告 + 量产包</td><td>综合</td><td>★A10（2027-09-30）</td><td>赵庆尧</td></tr>
+</tbody>
+</table>
+
+<div class="alert" style="margin-top: 16px; background: var(--ai-bg); border-left-color: var(--ai); color: var(--ai);">
+<strong>🤖 AI 异常识别模块（接手核心新增）：</strong>原产品线无 AI 模块，<strong>V4.00 新增多任务异常识别</strong>（异物入侵 / 周边环境变化 / 施工作业），由 PC 端负责从 M2 起 11 个月滚动开发，最终交付 V2.0 集成进上位机。
+</div>
+</div>
+
+<!-- ============== ② 预计研发周期 ============== -->
+<div class="section" id="sec2">
+<div class="section-title"><span class="section-num">②</span>预计研发周期 — 12 个月（2026-10-08 → 2027-09-30）</div>
+
+<div class="alert info">
+<strong>📅 周期总览：</strong>启动 2026-10-08（周三），验收 2027-09-30（周四），<strong>12 个月整</strong>。前 6 月聚焦硬件样机（M5-M7），第 7 月起上车联调（M8-M12），AI 异常识别从 M2 起贯穿 11 个月。
+</div>
+
+<div class="kpi-grid">
+<div class="kpi-card highlight">
+<div class="kpi-label">项目周期</div>
+<div class="kpi-value primary">12<span class="kpi-unit">个月</span></div>
+<div class="kpi-meta">2026-10-08 → 2027-09-30</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">硬件样机</div>
+<div class="kpi-value success">6<span class="kpi-unit">月</span></div>
+<div class="kpi-meta">M1-M6 准备 / M7 ★样机</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">上车联调</div>
+<div class="kpi-value warning">5<span class="kpi-unit">月</span></div>
+<div class="kpi-meta">M8-M12 多场景实测</div>
+</div>
+<div class="kpi-card ai">
+<div class="kpi-label">AI 异常识别</div>
+<div class="kpi-value ai">11<span class="kpi-unit">月</span></div>
+<div class="kpi-meta">M2 → M12 滚动迭代</div>
+</div>
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">12 个月甘特图（接手阶段 + 研发主线 + AI 贯穿）</h3>
+<div class="gantt">
+<div class="gantt-header"></div>
+<div class="gantt-header">10月</div><div class="gantt-header">11月</div><div class="gantt-header">12月</div>
+<div class="gantt-header">1月</div><div class="gantt-header">2月</div><div class="gantt-header">3月</div>
+<div class="gantt-header">4月</div><div class="gantt-header">5月</div><div class="gantt-header">6月</div>
+<div class="gantt-header">7月</div><div class="gantt-header">8月</div><div class="gantt-header">9月</div>
+
+<div class="gantt-row-label">🔵 接手 + 招聘</div>
+<div class="gantt-cell p0"><span class="label">摸底+BOM核对</span></div>
+<div class="gantt-cell p0"><span class="label">★到岗</span></div>
+<div class="gantt-cell p0"><span class="label">设计冻结</span></div>
+<div class="gantt-cell p0"><span class="label">投板</span></div>
+<div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+<div class="gantt-row-label">🟢 硬件样机</div>
+<div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+<div class="gantt-cell p1"><span class="label">外壳v1+焊接</span></div>
+<div class="gantt-cell p1"><span class="label">传感器调试</span></div>
+<div class="gantt-cell p1"><span class="label">★样机</span></div>
+<div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+<div class="gantt-row-label">🟡 装车联调</div>
+<div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+<div class="gantt-cell p2"><span class="label">装车准备</span></div>
+<div class="gantt-cell p2"><span class="label">★装车</span></div>
+<div class="gantt-cell p2"><span class="label">联调启动</span></div>
+<div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+<div class="gantt-row-label">🟠 上车+上位机</div>
+<div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+<div class="gantt-cell p3"><span class="label">路测+上位机</span></div>
+<div class="gantt-cell p3"><span class="label">迭代</span></div>
+<div class="gantt-cell p3"><span class="label">★验收</span></div>
+
+<div class="gantt-row-label">🟣 AI 异常识别</div>
+<div class="gantt-cell"></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">预研</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">基础demo</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">数据集</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">预训练</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">数据采集</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">微调V1</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">联调V1</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">★V1.0</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">微调V2</span></div>
+<div class="gantt-cell" style="background: var(--ai-bg);"><span class="label">★V2验收</span></div>
+
+<div class="gantt-row-label">🔴 验收交付</div>
+<div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+<div class="gantt-cell p4"><span class="label">★交付</span></div>
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">关键里程碑（10 个核心 + 4 个 AI 子节点）</h3>
+<table>
+<thead>
+<tr><th>编号</th><th>里程碑</th><th>时间</th><th>交付</th></tr>
+</thead>
+<tbody>
+<tr><td>★A1</td><td>项目启动 + 招聘发布</td><td>2026-10-20</td><td>JD 发布 + 需求规格说明书 V1.0</td></tr>
+<tr><td>★A2</td><td>团队就位（嵌入式+PC端）</td><td>2026-11-15</td><td>2 岗全部入职</td></tr>
+<tr><td>★A3</td><td>硬件设计冻结</td><td>2027-01-15</td><td>原理图 + PCB + 外壳结构图</td></tr>
+<tr><td>★A4</td><td>PCB 回板 + 焊接</td><td>2027-02 中</td><td>STM32 启动 + 各模块单测</td></tr>
+<tr style="background: var(--success-bg);"><td><strong>★A5</strong></td><td><strong>★ 硬件样机 V1 完成</strong></td><td>2027-04-15</td><td>XT32+IMU+相机+Orin NX+PCB 联调</td></tr>
+<tr><td>★A6</td><td>装车完成 + 首次路测</td><td>2027-05 中</td><td>实车装配 + 50km/h 测试</td></tr>
+<tr><td>★A7</td><td>联调 + 上位机 V1</td><td>2027-06 末</td><td>完整上位机 + 数据流打通</td></tr>
+<tr style="background: var(--ai-bg);"><td>★A7-AI</td><td><strong>🤖 AI V1.0</strong></td><td>2027-06 末</td><td>YOLOv8 多任务 + 公开数据预训练</td></tr>
+<tr style="background: var(--ai-bg);"><td>★A8-AI</td><td><strong>🤖 现场数据采集 + 标注</strong></td><td>2027-07~08</td><td>≥3000 张精标（异物/落石/施工）</td></tr>
+<tr><td>★A8</td><td>多场景实测</td><td>2027-08 中</td><td>白天/夜间/雨/雾/隧道验证</td></tr>
+<tr style="background: var(--ai-bg);"><td>★A9-AI</td><td><strong>🤖 AI V2 微调</strong></td><td>2027-08 中</td><td>mAP@0.5 ≥ 0.75</td></tr>
+<tr><td>★A9</td><td>迭代优化 V1.1</td><td>2027-09 上</td><td>数据精度达标</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>★A10-AI</strong></td><td><strong>★ AI 验收</strong></td><td>2027-09-30</td><td>V2.0 多任务 + 实时告警集成</td></tr>
+<tr style="background: var(--success-bg);"><td><strong>★A10</strong></td><td><strong>★ 验收交付</strong></td><td>2027-09-30</td><td>客户签字 + 量产包</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============== ③ 预计 BOM 成本 ============== -->
+<div class="section" id="sec3">
+<div class="section-title"><span class="section-num">③</span>预计 BOM 成本 — 单台 5.63 万 + 分层采购 12.41 万</div>
+
+<div class="alert info">
+<strong>💰 BOM 成本口径：</strong>单台 BOM <strong>56,325 元</strong>（不含税，按 V1.9 锁定版），全项目分层采购总额 <strong>124,130 元</strong>（核心 2 份 + 外壳 4 次 + 配件 2 份 + 相机 2 份）。
+</div>
+
+<div class="kpi-grid">
+<div class="kpi-card highlight">
+<div class="kpi-label">单台 BOM 成本</div>
+<div class="kpi-value primary">56,325<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">约 5.63 万元（不含税）</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">分层采购总额</div>
+<div class="kpi-value success">124,130<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">约 12.41 万元（项目硬件）</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">核心传感器 ×2</div>
+<div class="kpi-value">4.7<span class="kpi-unit">万</span></div>
+<div class="kpi-meta">XT32+IMU+UMD982+蘑菇头</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">外壳 ×4 次迭代</div>
+<div class="kpi-value">2.4<span class="kpi-unit">万</span></div>
+<div class="kpi-meta">CNC 骨架+分体 v1→v4</div>
+</div>
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">3.1 单台 BOM 明细（5.63 万）</h3>
+<table>
+<thead>
+<tr><th class="num">#</th><th>部件</th><th>型号/规格</th><th class="num">单价(元)</th><th class="num">小计(元)</th><th>备注</th></tr>
+</thead>
+<tbody>
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>用户已指定部件（9 项核心）</strong></td></tr>
+<tr><td class="num">1</td><td>激光雷达</td><td>禾赛 XT32（32线，120m，360°×31°）</td><td class="num">18,000</td><td class="num"><strong>18,000</strong></td><td>批量采购价</td></tr>
+<tr><td class="num">2</td><td>IMU</td><td>ADIS16477-3（零偏 0.8°/h，±40g）</td><td class="num">4,500</td><td class="num"><strong>4,500</strong></td><td>高精度宽量程</td></tr>
+<tr><td class="num">3</td><td>定位模组</td><td>和芯星通 UMD982（双天线 RTK，1408 通道）</td><td class="num">340</td><td class="num"><strong>340</strong></td><td>340 元/片</td></tr>
+<tr><td class="num">4</td><td>GNSS 天线</td><td>国产多频段蘑菇头（L1+L2+L5）×2</td><td class="num">260</td><td class="num"><strong>520</strong></td><td>≥36dB 增益</td></tr>
+<tr><td class="num">5</td><td>工控主板</td><td>NVIDIA Jetson Orin NX 16GB（含载板）</td><td class="num">8,000</td><td class="num"><strong>8,000</strong></td><td>100 TOPS</td></tr>
+<tr><td class="num">6</td><td>工业摄像头</td><td>≤1000 元全局快门 ×4（500 万像素）</td><td class="num">1,000</td><td class="num"><strong>4,000</strong></td><td>大恒/华睿</td></tr>
+<tr><td class="num">7</td><td>存储（混合）</td><td>2×1TB SSD + 2×8TB HDD（17TB）</td><td class="num">—</td><td class="num"><strong>3,900</strong></td><td>系统盘+数据盘</td></tr>
+<tr><td class="num">8</td><td>CNC 外壳</td><td>骨架 + 分体 CNC（铝 6061，含密封件）</td><td class="num">6,000</td><td class="num"><strong>6,000</strong></td><td>便于维护</td></tr>
+<tr><td class="num">9</td><td>锂电池组</td><td>24V/10Ah LiFePO4 + BMS</td><td class="num">2,000</td><td class="num"><strong>2,000</strong></td><td>UPS 备用</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;">
+<td colspan="4">用户指定部件小计</td><td class="num">47,260</td><td>—</td>
+</tr>
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>补齐配件（7 大模块，详见第 ⑨ 章）</strong></td></tr>
+<tr><td class="num">A</td><td>同步与采集控制</td><td>PCB 自研板 + PPS 分配器 + 同步线缆</td><td colspan="2" class="num">1,170</td><td>详见第 ⑩ 章</td></tr>
+<tr><td class="num">B</td><td>电源系统（不含电池）</td><td>DC-DC 降压 + 浪涌保护 + ATS 切换</td><td colspan="2" class="num">1,860</td><td>—</td></tr>
+<tr><td class="num">C</td><td>散热系统</td><td>风扇 + 散热片</td><td colspan="2" class="num">710</td><td>—</td></tr>
+<tr><td class="num">D</td><td>网络与通信</td><td>千兆交换机 + M.2 转网卡</td><td colspan="2" class="num">600</td><td>—</td></tr>
+<tr><td class="num">E</td><td>连接器与线缆</td><td>防水航空插头 + 网线 + 同轴线</td><td colspan="2" class="num">1,110</td><td>—</td></tr>
+<tr><td class="num">F</td><td>结构与安装（不含外壳）</td><td>减震器 + 支架 + 密封件</td><td colspan="2" class="num">3,500</td><td>—</td></tr>
+<tr><td class="num">G</td><td>监控与指示</td><td>OLED + 蜂鸣器 + 按键</td><td colspan="2" class="num">115</td><td>—</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;">
+<td colspan="4">补齐配件小计</td><td class="num">9,065</td><td>—</td>
+</tr>
+<tr style="background: var(--p1); font-weight: 700; font-size: 15px;">
+<td colspan="4">单台 BOM 合计</td><td class="num">56,325 元</td><td>≤ 6 万元目标 100% 达成 ✅</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">3.2 分层采购总额（项目硬件 12.41 万）</h3>
+<table>
+<thead>
+<tr><th>类别</th><th>部件</th><th class="num">单价(元)</th><th class="num">份数</th><th class="num">小计(元)</th><th>采购逻辑</th></tr>
+</thead>
+<tbody>
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>A. 核心传感器（2 份）— 故障率高、维修周期长</strong></td></tr>
+<tr><td></td><td>激光雷达 XT32</td><td>18,000</td><td class="num">2</td><td class="num">36,000</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>IMU ADIS16477-3</td><td>4,500</td><td class="num">2</td><td class="num">9,000</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>定位 UMD982</td><td>340</td><td class="num">2</td><td class="num">680</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>蘑菇头天线</td><td>260</td><td class="num">2</td><td class="num">520</td><td>正样 + 备件</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="4">A 小计</td><td class="num">46,200</td><td>关键路径备份</td></tr>
+
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>B. 计算平台 + 存储（2 份）</strong></td></tr>
+<tr><td></td><td>Orin NX 16GB</td><td>8,000</td><td class="num">2</td><td class="num">16,000</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>存储 2×1TB SSD + 2×8TB HDD</td><td>3,900</td><td class="num">2</td><td class="num">7,800</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>锂电池 24V/10Ah</td><td>2,000</td><td class="num">2</td><td class="num">4,000</td><td>正样 + 备件</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="4">B 小计</td><td class="num">27,800</td><td>—</td></tr>
+
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>C. 相机（2 份）— 故障率高</strong></td></tr>
+<tr><td></td><td>全局快门相机 1000 元×4</td><td>4,000</td><td class="num">2</td><td class="num">8,000</td><td>正样 4 + 备件 4</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="4">C 小计</td><td class="num">8,000</td><td>—</td></tr>
+
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>D. 外壳机械（4 次迭代）— 多次升级</strong></td></tr>
+<tr><td></td><td>CNC 骨架+分体 v1</td><td>6,000</td><td class="num">1</td><td class="num">6,000</td><td>初版装机</td></tr>
+<tr><td></td><td>CNC 升级 v2</td><td>6,000</td><td class="num">1</td><td class="num">6,000</td><td>实验室反馈优化</td></tr>
+<tr><td></td><td>CNC 升级 v3</td><td>6,000</td><td class="num">1</td><td class="num">6,000</td><td>装车反馈优化（IP65 强化）</td></tr>
+<tr><td></td><td>CNC 升级 v4（最终版）</td><td>6,000</td><td class="num">1</td><td class="num">6,000</td><td>实测反馈最终版</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="4">D 小计</td><td class="num">24,000</td><td>v1→v4 逐步升级</td></tr>
+
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>E. 配件（2 份）— 通用易耗</strong></td></tr>
+<tr><td></td><td>线缆/连接器/PCB/电源等</td><td>9,065</td><td class="num">2</td><td class="num">18,130</td><td>正样 + 备件</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="4">E 小计</td><td class="num">18,130</td><td>—</td></tr>
+
+<tr style="background: var(--p1); font-weight: 700; font-size: 15px;">
+<td colspan="4">硬件总计（A+B+C+D+E）</td><td class="num">124,130</td><td>约 12.4 万（分层采购）</td>
+</tr>
+</tbody>
+</table>
+
+<div class="alert" style="margin-top: 16px;">
+<strong>📊 节省对比：</strong>原"4 倍统一采购"方案 56,325 × 4 = <strong>225,300 元</strong>，现分层方案 <strong>124,130 元</strong>，<strong>节省 101,170 元（44.9%）</strong>。逻辑：核心件故障率高 → 多备；外壳单价高、可迭代 → 多次升级；配件通用 → 备 1 份。
+</div>
+</div>
+
+<!-- ============== ④ 预计研发成本 ============== -->
+<div class="section" id="sec4">
+<div class="section-title"><span class="section-num">④</span>预计研发成本 — 人工 / 物料 / 办公及其他三栏口径</div>
+
+<div class="alert info">
+<strong>💡 V4.00 新口径：</strong>研发成本按"<strong>人工 / 物料 / 办公及其他</strong>"三栏拆分（与 V2.10 旧口径不同），便于成本归口管理和客户审计。<strong>研发总投入 ≈ 140 万元</strong>，叠加 BOM 后<strong>项目总预算 ≈ 152.3 万元</strong>。
+</div>
+
+<div class="kpi-grid">
+<div class="kpi-card highlight">
+<div class="kpi-label">项目总预算</div>
+<div class="kpi-value primary">152.3<span class="kpi-unit">万元</span></div>
+<div class="kpi-meta">研发 140 万 + BOM 12.4 万</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">4.1 人工成本</div>
+<div class="kpi-value">116.7<span class="kpi-unit">万</span></div>
+<div class="kpi-meta">薪资 81.75 + 福利 34.94</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">4.2 物料成本</div>
+<div class="kpi-value">2.3<span class="kpi-unit">万</span></div>
+<div class="kpi-meta">AI 训练（GPU + 标注）</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">4.3 办公及其他</div>
+<div class="kpi-value">21.0<span class="kpi-unit">万</span></div>
+<div class="kpi-meta">运营 14.4 + 不可预见 6.55</div>
+</div>
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">4.1 人工成本（1,166,850 元 — 占总预算 76.6%）</h3>
+<table>
+<thead>
+<tr><th>类别</th><th>明细</th><th class="num">月数</th><th class="num">月薪(元)</th><th class="num">年终奖(2月)</th><th class="num">合计(元)</th></tr>
+</thead>
+<tbody>
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>直接薪资（817,500 元）</strong></td></tr>
+<tr><td>赵庆尧</td><td>技术总负责（武大测绘/11 年/SLAM+车载）</td><td class="num">12</td><td class="num">20,000</td><td class="num">40,000</td><td class="num"><strong>280,000</strong></td></tr>
+<tr><td>嵌入式</td><td>武大测绘/5 年经验/男/研究生</td><td class="num">10.5</td><td class="num">25,000</td><td class="num">50,000</td><td class="num"><strong>312,500</strong></td></tr>
+<tr><td>PC 端</td><td>武大遥感/2 年经验/男/研究生（AI 全栈）</td><td class="num">10.5</td><td class="num">18,000</td><td class="num">36,000</td><td class="num"><strong>225,000</strong></td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="5">直接薪资小计</td><td class="num">817,500</td></tr>
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>法定福利（349,350 元 = 直接薪资 × 42% + 商保）</strong></td></tr>
+<tr><td>公积金</td><td>12%（按月薪基数）</td><td colspan="3"></td><td class="num">98,100</td></tr>
+<tr><td>社保</td><td>养老+医疗+失业+工伤+生育 ~30%</td><td colspan="3"></td><td class="num">245,250</td></tr>
+<tr><td>商业补充保险</td><td>3 人 × 2,000 元/年</td><td colspan="3"></td><td class="num">6,000</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="5">法定福利小计</td><td class="num">349,350</td></tr>
+<tr style="background: var(--p1); font-weight: 700; font-size: 15px;"><td colspan="5">4.1 人工成本合计</td><td class="num">1,166,850 元</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">4.2 物料成本 — AI 异常识别训练（23,000 元 — 占总预算 1.5%）</h3>
+<table>
+<thead>
+<tr><th>类别</th><th>明细</th><th class="num">数量</th><th class="num">单价(元)</th><th class="num">小计(元)</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>云端 GPU 租赁</td><td>A100 / A800 训练机（M9-M11）</td><td class="num">4 月</td><td class="num">2,000</td><td class="num">8,000</td><td>月租，按需弹性</td></tr>
+<tr><td>AI 数据标注外包</td><td>精标 3000 张（CVAT 半自动 + 人工精标）</td><td class="num">3000 张</td><td class="num">5</td><td class="num">15,000</td><td>异物/落石/施工/植被</td></tr>
+<tr style="background: var(--ai-bg); font-weight: 700;"><td colspan="4">4.2 AI 训练物料合计</td><td class="num">23,000</td><td>约 2.3 万</td></tr>
+<tr><td colspan="6" style="color: var(--text-muted); font-size: 12px;">注：Orin NX 100 TOPS 推理算力免购置（已在 BOM 中），TensorRT 部署零成本</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">4.3 办公成本及其他（209,500 元 — 占总预算 13.7%）</h3>
+<table>
+<thead>
+<tr><th>类别</th><th>明细</th><th class="num">月数</th><th class="num">月均(元)</th><th class="num">合计(元)</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr style="background: var(--info-bg);"><td colspan="6"><strong>运营开销（144,000 元）</strong></td></tr>
+<tr><td>招聘费</td><td>猎头 + 平台</td><td class="num">1</td><td class="num">20,000</td><td class="num">20,000</td><td>加速 11-15 到岗</td></tr>
+<tr><td>办公场地租金</td><td>3 人工位</td><td class="num">12</td><td class="num">3,500</td><td class="num">42,000</td><td>天津</td></tr>
+<tr><td>办公设备折旧</td><td>桌椅/电脑/外设</td><td class="num">12</td><td class="num">800</td><td class="num">9,600</td><td>—</td></tr>
+<tr><td>日常办公耗材</td><td>打印/文具/水电网</td><td class="num">12</td><td class="num">700</td><td class="num">8,400</td><td>—</td></tr>
+<tr><td>测试设备租赁</td><td>振动台 + 温箱（M8-9 短期）</td><td class="num">2</td><td class="num">8,000</td><td class="num">16,000</td><td>—</td></tr>
+<tr><td>装车测试差旅</td><td>M8-M11 路测</td><td class="num">4</td><td class="num">8,000</td><td class="num">32,000</td><td>—</td></tr>
+<tr><td>通信/网络费</td><td>团队手机/网络</td><td class="num">12</td><td class="num">500</td><td class="num">6,000</td><td>—</td></tr>
+<tr><td>团建</td><td>1 次</td><td class="num">1</td><td class="num">10,000</td><td class="num">10,000</td><td>—</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="4">运营开销小计</td><td class="num">144,000</td></tr>
+<tr><td>不可预见费</td><td>5%（研发投入基数）</td><td colspan="2"></td><td class="num">65,500</td><td>—</td></tr>
+<tr style="background: var(--p1); font-weight: 700; font-size: 15px;"><td colspan="4">4.3 办公及其他合计</td><td class="num">209,500 元</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">4.X 研发成本汇总 + 项目总预算</h3>
+<table>
+<thead>
+<tr><th>成本项</th><th class="num">金额(元)</th><th class="num">占比</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>4.1 人工成本</strong></td><td class="num">1,166,850</td><td class="num">76.6%</td><td>薪资 + 福利（含 14 薪）</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>4.2 物料成本（AI 训练）</strong></td><td class="num">23,000</td><td class="num">1.5%</td><td>GPU 租赁 + 数据标注</td></tr>
+<tr><td><strong>4.3 办公及其他</strong></td><td class="num">209,500</td><td class="num">13.7%</td><td>运营 14.4 万 + 不可预见 6.55 万</td></tr>
+<tr style="background: var(--info-bg); font-weight: 700;"><td>研发投入小计</td><td class="num">1,399,350</td><td class="num">91.9%</td><td>约 139.9 万</td></tr>
+<tr><td>③ BOM 采购（独立）</td><td class="num">124,130</td><td class="num">8.1%</td><td>约 12.4 万</td></tr>
+<tr style="background: var(--p1); font-weight: 700; font-size: 15px;"><td>项目总预算</td><td class="num">1,523,480</td><td class="num">100%</td><td>约 152.3 万元 ✅</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">预算分配可视化</h3>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;"><span><strong>人工成本</strong>（76.6%）</span><span style="font-weight: 600;">1,166,850 元</span></div>
+<div class="cost-bar"><div class="cost-fill" style="width: 76.6%; background: linear-gradient(90deg, var(--primary), var(--primary-dark));"></div></div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;"><span><strong>BOM 采购</strong>（8.1%）</span><span style="font-weight: 600;">124,130 元</span></div>
+<div class="cost-bar"><div class="cost-fill" style="width: 8.1%; background: linear-gradient(90deg, var(--warning), #d97706);"></div></div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;"><span><strong>办公及其他</strong>（13.7%）</span><span style="font-weight: 600;">209,500 元</span></div>
+<div class="cost-bar"><div class="cost-fill" style="width: 13.7%; background: linear-gradient(90deg, var(--success), #059669);"></div></div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;"><span><strong>AI 物料</strong>（1.5%）</span><span style="font-weight: 600;">23,000 元</span></div>
+<div class="cost-bar"><div class="cost-fill" style="width: 1.5%; background: linear-gradient(90deg, var(--ai), #7c3aed);"></div></div>
+</div>
+
+<!-- ============== ⑤ 性能指标 ============== -->
+<div class="section" id="sec5">
+<div class="section-title"><span class="section-num">⑤</span>性能指标 — 点云 / 定位 / AI / 系统四大维度</div>
+
+<div class="alert info">
+<strong>🎯 验收基线：</strong>性能指标分 4 大维度（点云 / 定位 / AI 异常识别 / 系统），<strong>全部为可量化、可测试、可验收</strong>。M12 验收前完成全部测试用例闭环。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">5.1 点云采集性能（LiDAR）</h3>
+<div class="spec-grid">
+<div class="spec-card"><div class="spec-label">线数</div><div class="spec-value">32 线</div></div>
+<div class="spec-card"><div class="spec-label">测距范围</div><div class="spec-value">0.5 ~ 120 m</div></div>
+<div class="spec-card"><div class="spec-label">测距精度</div><div class="spec-value">±2 cm（1σ）</div></div>
+<div class="spec-card"><div class="spec-label">点频</div><div class="spec-value">640,000 点/秒</div></div>
+<div class="spec-card"><div class="spec-label">回波模式</div><div class="spec-value">双回波</div></div>
+<div class="spec-card"><div class="spec-label">水平视场</div><div class="spec-value">360°</div></div>
+<div class="spec-card"><div class="spec-label">垂直视场</div><div class="spec-value">31°（-25° ~ +6°）</div></div>
+<div class="spec-card"><div class="spec-label">水平角分辨率</div><div class="spec-value">0.18°</div></div>
+<div class="spec-card"><div class="spec-label">防护等级</div><div class="spec-value">IP6K7 / IP6K9K</div></div>
+<div class="spec-card"><div class="spec-label">功耗</div><div class="spec-value">约 10 W</div></div>
+<div class="spec-card"><div class="spec-label">工作温度</div><div class="spec-value">-20℃ ~ 60℃</div></div>
+<div class="spec-card"><div class="spec-label">同步接口</div><div class="spec-value">百兆以太网 + GPS/PTP</div></div>
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">5.2 定位与姿态性能（GNSS + IMU）</h3>
+<table>
+<thead>
+<tr><th>指标</th><th class="num">数值</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>GNSS 频段</td><td>L1 + L2 + L5</td><td>多系统多频段（北斗/ GPS/ GLONASS/ Galileo）</td></tr>
+<tr><td>RTK 精度</td><td><strong>水平 ≤2 cm + 高程 ≤5 cm</strong></td><td>固定解（双天线定向）</td></tr>
+<tr><td>单点精度</td><td>水平 1.5 m / 高程 3 m</td><td>无 RTK 信号时</td></tr>
+<tr><td>数据更新率</td><td>最高 50 Hz</td><td>UMD982 输出</td></tr>
+<tr><td>IMU 陀螺零偏</td><td><strong>0.8°/h</strong></td><td>ADIS16477-3（高精度宽量程）</td></tr>
+<tr><td>IMU 加速度量程</td><td>±40 g</td><td>适应车顶振动</td></tr>
+<tr><td>IMU 采样率</td><td>1000 Hz</td><td>SPI 接口</td></tr>
+<tr><td>组合导航</td><td>RTK + IMU 紧耦合</td><td>隧道/弱信号场景 IMU 辅助</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--ai); margin: 20px 0 8px 0;">5.3 AI 异常识别性能（验收指标）</h3>
+<div class="alert ai">
+<strong>🤖 AI 验收硬指标：</strong><strong>mAP@0.5 ≥ 0.75</strong>，<strong>单帧推理 ≤30ms</strong>（Orin NX 100 TOPS），<strong>实时告警延迟 ≤500ms</strong>，<strong>误报率 ≤5%</strong>。
+</div>
+<table>
+<thead>
+<tr><th>任务</th><th class="num">类别数</th><th>典型目标</th><th class="num">mAP@0.5</th><th class="num">召回率</th><th>告警等级</th></tr>
+</thead>
+<tbody>
+<tr><td>异物入侵</td><td class="num">5+</td><td>落石 / 行人 / 车辆 / 牲畜 / 抛洒物</td><td class="num">≥ 0.80</td><td class="num">≥ 0.85</td><td>🔴 紧急</td></tr>
+<tr><td>周边环境变化</td><td class="num">5+</td><td>新建筑 / 违建 / 取土 / 植被 / 水浸</td><td class="num">≥ 0.70</td><td class="num">≥ 0.75</td><td>🟡 关注</td></tr>
+<tr><td>施工作业</td><td class="num">4+</td><td>施工人员 / 机械 / 围挡 / 警示牌</td><td class="num">≥ 0.75</td><td class="num">≥ 0.80</td><td>🟡 关注</td></tr>
+<tr style="background: var(--ai-bg); font-weight: 700;"><td>综合验收</td><td class="num">3 类</td><td>多任务并行</td><td class="num"><strong>≥ 0.75</strong></td><td class="num">≥ 0.80</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">5.4 系统级性能</h3>
+<table>
+<thead>
+<tr><th>指标</th><th class="num">数值</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>工控算力</td><td><strong>100 TOPS（INT8）</strong></td><td>Jetson Orin NX 16GB</td></tr>
+<tr><td>内存</td><td>16GB LPDDR5</td><td>—</td></tr>
+<tr><td>存储容量</td><td><strong>17 TB</strong>（2×1TB SSD + 2×8TB HDD）</td><td>系统盘+数据盘</td></tr>
+<tr><td>续航（无外电）</td><td>≥1 小时</td><td>24V/10Ah 锂电池 UPS</td></tr>
+<tr><td>整机功耗</td><td>≤80 W</td><td>峰值（XT32+4 相机+Orin NX 全开）</td></tr>
+<tr><td>整机重量</td><td>≤15 kg</td><td>含外壳、电池</td></tr>
+<tr><td>防护等级</td><td>IP65</td><td>铝合金 CNC 骨架+分体</td></tr>
+<tr><td>工作温度</td><td>-20℃ ~ 60℃</td><td>—</td></tr>
+<tr><td>振动防护</td><td>钢丝减震器 ×8</td><td>车顶振动场景</td></tr>
+<tr><td>同步精度</td><td>≤1 ms</td><td>PPS + PTP 时间同步</td></tr>
+<tr><td>相机帧率</td><td>≥30 fps ×4</td><td>硬件触发同步</td></tr>
+<tr><td>数据录制时长</td><td>≥8 小时连续</td><td>17TB 容量</td></tr>
+<tr><td>实时告警延迟</td><td>≤500 ms</td><td>从图像采集到 Qt 端告警</td></tr>
+<tr><td>AI 单帧推理</td><td>≤30 ms</td><td>Orin NX TensorRT FP16</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============== ⑥ 元件及核心部件清单详情 ============== -->
+<div class="section" id="sec6">
+<div class="section-title"><span class="section-num">⑥</span>元件及核心部件清单详情 — 用户指定 9 项 + 补齐 7 模块</div>
+
+<div class="alert info">
+<strong>📦 清单结构：</strong>9 项用户已指定部件（核心传感器/计算/外壳）+ 7 大补齐配件模块（A~G）。<strong>用户指定部分占整机 83.9%</strong>，补齐配件占 16.1%。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">6.1 用户指定部件（9 项核心 — v1.9 锁定）</h3>
+<table>
+<thead>
+<tr><th class="num">#</th><th>部件</th><th>型号</th><th class="num">数量</th><th class="num">单价(元)</th><th class="num">小计(元)</th><th>关键参数</th></tr>
+</thead>
+<tbody>
+<tr><td class="num">1</td><td><strong>激光雷达</strong></td><td>禾赛 XT32</td><td class="num">1</td><td class="num">18,000</td><td class="num"><strong>18,000</strong></td><td>32线 / 120m / 360°×31° / 0.5~120m</td></tr>
+<tr><td class="num">2</td><td><strong>IMU</strong></td><td>ADIS16477-3</td><td class="num">1</td><td class="num">4,500</td><td class="num"><strong>4,500</strong></td><td>零偏 0.8°/h / ±40g / SPI</td></tr>
+<tr><td class="num">3</td><td><strong>定位模组</strong></td><td>和芯星通 UMD982</td><td class="num">1</td><td class="num">340</td><td class="num"><strong>340</strong></td><td>1408 通道 / 双天线 RTK / 50Hz</td></tr>
+<tr><td class="num">4</td><td><strong>GNSS 天线</strong></td><td>国产多频段蘑菇头</td><td class="num">2</td><td class="num">260</td><td class="num"><strong>520</strong></td><td>L1+L2+L5 / ≥36dB / TNC/SMA</td></tr>
+<tr><td class="num">5</td><td><strong>工控主板</strong></td><td>NVIDIA Jetson Orin NX 16GB</td><td class="num">1</td><td class="num">8,000</td><td class="num"><strong>8,000</strong></td><td>100 TOPS / 16GB LPDDR5</td></tr>
+<tr><td class="num">6</td><td><strong>工业摄像头</strong></td><td>≤1000 元全局快门</td><td class="num">4</td><td class="num">1,000</td><td class="num"><strong>4,000</strong></td><td>500万像素 / ≥56fps / 全局快门</td></tr>
+<tr><td class="num">7</td><td><strong>存储（混合）</strong></td><td>2×1TB SSD + 2×8TB HDD</td><td class="num">4+1</td><td class="num">—</td><td class="num"><strong>3,900</strong></td><td>三星 980 + 西数 HC320 / 17TB</td></tr>
+<tr><td class="num">8</td><td><strong>CNC 外壳</strong></td><td>骨架 + 分体 CNC</td><td class="num">1</td><td class="num">6,000</td><td class="num"><strong>6,000</strong></td><td>铝 6061 / IP65 / 模块化</td></tr>
+<tr><td class="num">9</td><td><strong>锂电池组</strong></td><td>24V/10Ah LiFePO4 + BMS</td><td class="num">1</td><td class="num">2,000</td><td class="num"><strong>2,000</strong></td><td>8S-24V / RS485/CAN / 1h 续航</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="6">用户指定部件合计</td><td class="num">47,260</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">6.2 补齐配件清单（7 大模块 — 详见第 ⑨ 章）</h3>
+<table>
+<thead>
+<tr><th>模块</th><th class="num">小计(元)</th><th>核心内容</th></tr>
+</thead>
+<tbody>
+<tr><td>A. 同步与采集控制</td><td class="num">1,170</td><td>PCB 自研板 + PPS 分配器 + 同步线缆</td></tr>
+<tr><td>B. 电源系统</td><td class="num">1,860</td><td>DC-DC 降压 + 浪涌保护 + ATS 切换</td></tr>
+<tr><td>C. 散热系统</td><td class="num">710</td><td>12V 风扇 + 散热片</td></tr>
+<tr><td>D. 网络与通信</td><td class="num">600</td><td>千兆交换机 + M.2 转网卡</td></tr>
+<tr><td>E. 连接器与线缆</td><td class="num">1,110</td><td>防水航空插头 + 网线 + 同轴线</td></tr>
+<tr><td>F. 结构与安装</td><td class="num">3,500</td><td>钢丝减震器 ×8 + 支架 + 密封件</td></tr>
+<tr><td>G. 监控与指示</td><td class="num">115</td><td>OLED + 蜂鸣器 + 按键</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td>补齐配件合计</td><td class="num">9,065</td><td>—</td></tr>
+</tbody>
+</table>
+
+<div class="alert" style="margin-top: 12px;">
+<strong>💡 详细选型规格：</strong>第 ⑥ 章聚焦"清单 + 价格 + 关键参数"，详细技术规格见第 ⑨ 章，单板详细核算见第 ⑩ 章。
+</div>
+</div>
+
+<!-- ============== ⑦ 主要元件功能 ============== -->
+<div class="section" id="sec7">
+<div class="section-title"><span class="section-num">⑦</span>主要元件功能 — 按子系统划分</div>
+
+<div class="alert info">
+<strong>🔍 视图：</strong>按 5 大子系统（感知 / 算力 / 存储 / 电源 / 结构）拆分，明确<strong>每个元件在系统中的角色</strong>。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">7.1 感知子系统（LiDAR + IMU + RTK + Camera）</h3>
+<table>
+<thead>
+<tr><th>元件</th><th>功能</th><th>数据输出</th><th>对接接口</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>禾赛 XT32 激光雷达</strong></td>
+<td>360° 周边环境三维点云采集；异物/落石/周边变化几何检测</td>
+<td>640,000 点/秒（ROS PointCloud2）</td>
+<td>百兆以太网 + GPS/PTP 同步</td>
+</tr>
+<tr>
+<td><strong>ADIS16477-3 IMU</strong></td>
+<td>高频姿态/加速度采集；点云去畸变；RTK 紧耦合；车顶振动监测</td>
+<td>1000 Hz 角速度+加速度（SPI）</td>
+<td>SPI 4 线 + 中断 + DR 引脚</td>
+</tr>
+<tr>
+<td><strong>UMD982 RTK</strong></td>
+<td>厘米级定位（≤2cm）+ 双天线定向；POS 组合导航输入</td>
+<td>NMEA-0183 / 二进制 50Hz</td>
+<td>UART / USB / CAN</td>
+</tr>
+<tr>
+<td><strong>蘑菇头天线 ×2</strong></td>
+<td>GNSS 信号接收（≥36dB 增益）；RTK 差分定位</td>
+<td>射频信号</td>
+<td>TNC / SMA</td>
+</tr>
+<tr>
+<td><strong>工业摄像头 ×4</strong></td>
+<td>周边 4 方向高清图像采集；异物/施工视觉检测；AI 推理输入</td>
+<td>MJPEG / YUYV 30fps+</td>
+<td>USB3.0 / GigE</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">7.2 算力子系统（Jetson Orin NX）</h3>
+<table>
+<thead>
+<tr><th>元件</th><th>功能</th><th>技术规格</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Jetson Orin NX 16GB</strong></td>
+<td>主控计算平台：SLAM 算法 / 点云处理 / AI 推理 / Qt 上位机</td>
+<td>8 核 A78AE CPU + 1024 核 Ampere GPU（100 TOPS INT8）</td>
+</tr>
+<tr>
+<td><strong>M.2 转千兆网卡（i350）</strong></td>
+<td>扩展 4 个千兆网口，连接 4 路相机 + 1 路雷达</td>
+<td>Intel i350 / i210 M.2 转 4 口</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">7.3 存储子系统（SSD + HDD）</h3>
+<table>
+<thead>
+<tr><th>元件</th><th>功能</th><th>容量/规格</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>2×1TB SSD（三星 980 NVMe）</strong></td>
+<td>系统盘 + 点云缓存 + AI 推理临时存储</td>
+<td>M.2 NVMe / 600元/个</td>
+</tr>
+<tr>
+<td><strong>2×8TB HDD（西数 HC320）</strong></td>
+<td>长时间数据录制（≥8h 连续）</td>
+<td>SATA 企业级 / 1,400元/个</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">7.4 电源子系统（AC-DC + DC-DC + 电池 + ATS）</h3>
+<table>
+<thead>
+<tr><th>元件</th><th>功能</th><th>关键参数</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AC220V→DC24V/15A 工业电源</strong></td>
+<td>主供 AC-DC 转换</td>
+<td>500W 工业级</td>
+</tr>
+<tr>
+<td><strong>DC-DC 降压模块</strong></td>
+<td>24V → 12V/15A（XT32+4相机）/ 5V/5A（IMU/GNSS）/ 19V/8A（Jetson）</td>
+<td>隔离型</td>
+</tr>
+<tr>
+<td><strong>24V/10Ah LiFePO4 锂电池</strong></td>
+<td>UPS 备用电源，断电自动切换（&lt;10ms）</td>
+<td>1h 续航</td>
+</tr>
+<tr>
+<td><strong>ATS 自动切换模块</strong></td>
+<td>外电/电池无缝切换（&lt;10ms）</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>浪涌保护器 + EMI 滤波器</strong></td>
+<td>车载电压尖峰防护 + EMI 抑制（集成到 PCB 一体化板）</td>
+<td>DC24V 浪涌</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">7.5 结构子系统（外壳 + 减震 + 密封 + 散热）</h3>
+<table>
+<thead>
+<tr><th>元件</th><th>功能</th><th>关键参数</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CNC 铝合金骨架</strong></td>
+<td>整体承重框架（30×30mm 铝型材）</td>
+<td>铝 6061</td>
+</tr>
+<tr>
+<td><strong>CNC 上下盖板 + 内部安装板</strong></td>
+<td>封闭机箱，便于检修</td>
+<td>分体 CNC</td>
+</tr>
+<tr>
+<td><strong>钢丝减震器 ×8</strong></td>
+<td>车顶振动防护（用户指定保留）</td>
+<td>重型钢丝减震</td>
+</tr>
+<tr>
+<td><strong>密封硅胶条/圈</strong></td>
+<td>IP65 防护</td>
+<td>硅胶发泡条</td>
+</tr>
+<tr>
+<td><strong>防水呼吸阀（Goretex M12）</strong></td>
+<td>防凝露 + 气压平衡</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>12V 风扇 + 散热片</strong></td>
+<td>Jetson + 机箱散热</td>
+<td>9cm / 12cm PWM</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">7.6 同步采集子系统（PCB 自研板 — 详见第 ⑩ 章）</h3>
+<table>
+<thead>
+<tr><th>元件</th><th>功能</th><th>关键参数</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PCB 自研一体化板（STM32H750）</strong></td>
+<td>① 电源滤波（π型 LC）<br>② 时间同步（PPS 输入/输出，GPS/PTP）<br>③ 相机触发（4 路 GPIO 隔离）</td>
+<td>嘉立创 4 层 / 10×10cm / 500元</td>
+</tr>
+<tr>
+<td><strong>PPS 信号分配器</strong></td>
+<td>GNSS PPS 一分四分配</td>
+<td>SMA 一分四</td>
+</tr>
+<tr>
+<td><strong>GPS/PTP 同步模块（备）</strong></td>
+<td>备用同步源</td>
+<td>u-blox ZED-F9P / 国产</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============== ⑧ 项目亮点 ============== -->
+<div class="section" id="sec8">
+<div class="section-title"><span class="section-num">⑧</span>项目亮点 — 6 大核心差异化</div>
+
+<div class="alert info">
+<strong>⭐ 核心差异化：</strong>项目在"<strong>硬件降本 + 软件提效 + AI 增值</strong>"三个维度同时突破，相对竞品有显著优势。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">亮点 1：硬件分层采购，预算节省 44.9%</h3>
+<ul>
+<li><strong>原方案</strong>：4 倍统一采购 = 56,325 × 4 = <strong>225,300 元</strong></li>
+<li><strong>新方案</strong>：核心件 2 份 + 外壳 4 次迭代 + 配件 2 份 = <strong>124,130 元</strong></li>
+<li><strong>节省</strong>：<strong>101,170 元（44.9%）</strong></li>
+<li><strong>逻辑</strong>：故障率高的核心件多备；外壳多次迭代而非备件；配件通用易耗只备 1 份</li>
+</ul>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">亮点 2：PCB 自研一体化板，成本可控</h3>
+<ul>
+<li>嘉立创 4 层板 + STM32H750 主控 = <strong>500 元/板</strong></li>
+<li>三大功能集成：①电源滤波 ②时间同步 ③相机触发</li>
+<li>相比商用 FPGA 板 + 独立触发器（1,020 元）<strong>节省 50%+</strong></li>
+<li><strong>完全可控</strong>，便于后续修改（详见第 ⑩ 章）</li>
+</ul>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">亮点 3：CNC 外壳"骨架 + 分体"模块化设计</h3>
+<ul>
+<li>骨架通用（铝型材 30×30mm）+ 上下盖板分体 CNC</li>
+<li>相比整体 CNC <strong>节省 3,000-4,000 元</strong></li>
+<li><strong>模块化检修</strong>：打开盖板即可维护内部组件</li>
+<li>IP65 防护（雨雪天气可用）</li>
+<li>支持 <strong>4 次迭代</strong>（v1→v4 逐步升级，每次 6,000 元）</li>
+</ul>
+
+<h3 style="font-size: 15px; color: var(--ai); margin: 20px 0 8px 0;">亮点 4：AI 多任务异常识别（核心增值模块）</h3>
+<ul>
+<li><strong>3 类异常</strong>：异物入侵 / 周边环境变化 / 施工作业</li>
+<li><strong>预训练 + 现场微调</strong>：YOLOv8x 公开权重 + 5000 张现场精标</li>
+<li><strong>Orin NX 100 TOPS</strong> 实时推理：单帧 ≤30ms，告警延迟 ≤500ms</li>
+<li><strong>验收指标</strong>：mAP@0.5 ≥ 0.75 / 误报率 ≤5%</li>
+<li><strong>闭环</strong>：Qt 上位机一键导出 + 自动入库标注</li>
+<li><strong>总投入仅 2.3 万</strong>（GPU 8,000 + 标注 15,000）</li>
+</ul>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">亮点 5：锂电池 UPS 备用，车顶断电无忧</h3>
+<ul>
+<li>24V/10Ah LiFePO4 + BMS = <strong>2,000 元</strong></li>
+<li>ATS 自动切换（&lt;10ms）</li>
+<li>断电续航 <strong>≥1 小时</strong>，保护数据不丢失</li>
+<li>磷酸铁锂安全性高（不易燃）</li>
+</ul>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">亮点 6：院校背景一致，沟通成本低</h3>
+<ul>
+<li>3 人均<strong>武大背景</strong>（测绘/遥感）</li>
+<li>技术总负责：武大测绘本科 + 11 年 SLAM/车载三维扫描仪经验</li>
+<li>嵌入式：武大测绘研究生 + 5 年经验</li>
+<li>PC 端：武大遥感研究生 + 2 年经验 + AI 全栈</li>
+<li>语言/术语/工作习惯一致，<strong>协作效率高</strong></li>
+</ul>
+</div>
+
+<!-- ============== ⑨ 补齐配件 + 关键技术规格 ============== -->
+<div class="section" id="sec9">
+<div class="section-title"><span class="section-num">⑨</span>补齐配件 + 关键技术规格</div>
+
+<div class="alert info">
+<strong>🔧 配件视图：</strong>本章节为补齐配件的详细规格 + 关键技术指标。<strong>用户指定部件</strong>详见第 ⑥ 章，<strong>PCB 自研板</strong>详见第 ⑩ 章。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">9.1 A. 同步与采集控制（1,170 元）</h3>
+<table>
+<thead>
+<tr><th class="num">#</th><th>部件</th><th>型号</th><th class="num">数量</th><th class="num">单价(元)</th><th class="num">小计(元)</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td class="num">A1</td><td><strong>PCB 自研一体化板</strong></td><td>嘉立创 4 层 + STM32H750 + 元器件贴片</td><td class="num">1</td><td class="num">500</td><td class="num"><strong>500</strong></td><td>详见第 ⑩ 章</td></tr>
+<tr><td class="num">A2</td><td>PPS 信号分配器</td><td>SMA 一分二/一分四</td><td class="num">1</td><td class="num">150</td><td class="num">150</td><td>GNSS PPS 分配</td></tr>
+<tr><td class="num">A3</td><td>时间同步线缆</td><td>SMA-KK1-1000 同轴 1m</td><td class="num">4</td><td class="num">30</td><td class="num">120</td><td>PPS/Trigger 传输</td></tr>
+<tr><td class="num">A4</td><td>激光雷达触发接入线</td><td>禾赛 XT32 GPS/PTP 同步线</td><td class="num">1</td><td class="num">200</td><td class="num">200</td><td>XT32 同步接口</td></tr>
+<tr><td class="num">A5</td><td>百兆以太网防水线</td><td>CAT5e 车规防水屏蔽 1m</td><td class="num">1</td><td class="num">50</td><td class="num">50</td><td>XT32 数据上传</td></tr>
+<tr><td class="num">A6</td><td>GPS/PTP 同步模块（备）</td><td>u-blox ZED-F9P / 国产兼容</td><td class="num">1</td><td class="num">150</td><td class="num">150</td><td>备用同步源</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="6">A 模块合计</td><td class="num">1,170</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">9.2 B. 电源系统（1,860 元，不含电池）</h3>
+<table>
+<thead>
+<tr><th class="num">#</th><th>部件</th><th>型号</th><th class="num">数量</th><th class="num">单价(元)</th><th class="num">小计(元)</th></tr>
+</thead>
+<tbody>
+<tr><td class="num">B3</td><td>DC-DC 24V→12V/15A</td><td>隔离型</td><td class="num">2</td><td class="num">200</td><td class="num">400</td></tr>
+<tr><td class="num">B4</td><td>DC-DC 24V→5V/5A</td><td>隔离型</td><td class="num">1</td><td class="num">150</td><td class="num">150</td></tr>
+<tr><td class="num">B5</td><td>DC-DC 24V→19V/8A（Jetson 专用）</td><td>—</td><td class="num">1</td><td class="num">250</td><td class="num">250</td></tr>
+<tr><td class="num">B7</td><td>浪涌/防雷保护</td><td>DC24V 浪涌保护器</td><td class="num">1</td><td class="num">200</td><td class="num">200</td></tr>
+<tr><td class="num">B8</td><td>外供电 AC220V→DC24V/15A</td><td>工业电源</td><td class="num">1</td><td class="num">500</td><td class="num">500</td></tr>
+<tr><td class="num">B9</td><td>充电管理</td><td>24V LiFePO4 专用（2A 慢充）</td><td class="num">1</td><td class="num">250</td><td class="num">250</td></tr>
+<tr><td class="num">B10</td><td>电源总开关</td><td>40A 空气开关 + 保险丝</td><td class="num">1</td><td class="num">100</td><td class="num">100</td></tr>
+<tr><td class="num">B11</td><td>电源指示灯</td><td>24V LED（红/绿/黄）</td><td class="num">3</td><td class="num">20</td><td class="num">60</td></tr>
+<tr><td class="num">B12</td><td>ATS 自动切换模块</td><td>AC 掉电自动切电池（&lt;10ms）</td><td class="num">1</td><td class="num">300</td><td class="num">300</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="5">B 模块合计（不含电池）</td><td class="num">1,860</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">9.3 C-G. 其他模块快速一览</h3>
+<table>
+<thead>
+<tr><th>模块</th><th class="num">小计(元)</th><th>关键部件</th></tr>
+</thead>
+<tbody>
+<tr><td>C. 散热系统</td><td class="num">710</td><td>12V/9cm PWM 风扇 ×2（160）+ 12V/12cm 大风量 ×2（300）+ TFX 导热硅脂 + 散热片 ×5（250）</td></tr>
+<tr><td>D. 网络与通信</td><td class="num">600</td><td>千兆交换机 ×1（200）+ Intel i350 M.2 转 4 口网卡 ×1（400）</td></tr>
+<tr><td>E. 连接器与线缆</td><td class="num">1,110</td><td>防水航空插头 GX16/20 ×6（300）+ Cat6A 屏蔽网线 ×4（200）+ RVV 电源线（160）+ 同轴触发线（100）+ DB9 串口线 ×2（50）+ USB3.0 工业线 ×2（100）+ 辅材（200）</td></tr>
+<tr><td>F. 结构与安装</td><td class="num">3,500</td><td>铝合金内部安装托板 ×2（600）+ <strong>钢丝减震器 ×8（400，用户指定保留）</strong> + 车顶安装支架（800）+ XT32 万向夹（500）+ 蘑菇头天线底座（100）+ 摄像头支架 ×4（400）+ 密封硅胶条/圈（200）+ 防水呼吸阀 ×2（100）+ 防雷接地铜排（200）+ 遮阳隔热反射板（200）</td></tr>
+<tr><td>G. 监控与指示</td><td class="num">115</td><td>0.96 寸 OLED 状态屏（50）+ 12V 有源蜂鸣器（20）+ 按键开关 ×3（45）</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td>补齐配件总计（A-G）</td><td class="num">9,065</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">9.4 关键技术规格（系统级）</h3>
+<table>
+<thead>
+<tr><th>维度</th><th>指标</th><th class="num">数值</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="3"><strong>时间同步</strong></td><td>同步方式</td><td>PPS + PTP 双模</td><td>GNSS PPS 硬件 + IEEE 1588 PTP</td></tr>
+<tr><td>同步精度</td><td>≤1 ms</td><td>4 相机 + LiDAR + IMU 同帧对齐</td></tr>
+<tr><td>触发方式</td><td>硬件 GPIO 触发</td><td>PCB 一体化板输出 4 路隔离触发</td></tr>
+<tr><td rowspan="3"><strong>SLAM</strong></td><td>主算法</td><td>FAST-LIO2</td><td>LiDAR-IMU 紧耦合</td></tr>
+<tr><td>备选算法</td><td>LeGO-LOAM</td><td>M6 仿真验证</td></tr>
+<tr><td>点云去畸变</td><td>IMU 辅助</td><td>1000Hz 运动补偿</td></tr>
+<tr><td rowspan="3"><strong>数据流</strong></td><td>ROS2 中间件</td><td>Humble</td><td>Ubuntu 22.04</td></tr>
+<tr><td>点云库</td><td>PCL 1.12</td><td>—</td></tr>
+<tr><td>视觉库</td><td>OpenCV 4.5</td><td>—</td></tr>
+<tr><td rowspan="3"><strong>AI 推理</strong></td><td>框架</td><td>YOLOv8x (ultralytics)</td><td>备选 Detectron2</td></tr>
+<tr><td>加速</td><td>TensorRT FP16</td><td>Orin NX 部署</td></tr>
+<tr><td>标注工具</td><td>CVAT（自部署）</td><td>半自动 + 人工精标</td></tr>
+<tr><td rowspan="2"><strong>上位机</strong></td><td>GUI 框架</td><td>Qt 6</td><td>C++ / QML</td></tr>
+<tr><td>录制格式</td><td>ROS Bag + MP4</td><td>点云 + 图像 + IMU 同步</td></tr>
+<tr><td rowspan="2"><strong>环境适应性</strong></td><td>防护等级</td><td>IP65</td><td>铝合金骨架+分体 CNC</td></tr>
+<tr><td>工作温度</td><td>-20℃ ~ 60℃</td><td>高低温测试（M10）</td></tr>
+<tr><td rowspan="2"><strong>车顶安装</strong></td><td>振动防护</td><td>钢丝减震器 ×8</td><td>—</td></tr>
+<tr><td>走线</td><td>车顶 → 车内 主线缆</td><td>电源 + 网络 + 同轴</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============== ⑩ PCB 自研一体化板核算 ============== -->
+<div class="section" id="sec10">
+<div class="section-title"><span class="section-num">⑩</span>PCB 自研一体化板核算 — 500 元实现 3 大功能</div>
+
+<div class="alert info">
+<strong>🔬 关键降本：</strong>PCB 自研一体化板是项目核心降本环节，<strong>单板 500 元</strong>实现"<strong>电源滤波 + 时间同步 + 相机触发</strong>"3 大功能，相比商用方案节省 50%+。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">10.1 PCB 板规格</h3>
+<table>
+<thead>
+<tr><th>项目</th><th>规格</th></tr>
+</thead>
+<tbody>
+<tr><td>PCB 厂商</td><td><strong>嘉立创 4 层板</strong>（沉金工艺）</td></tr>
+<tr><td>尺寸</td><td>10 cm × 10 cm</td></tr>
+<tr><td>主控芯片</td><td><strong>STM32H750</strong>（ARM Cortex-M7，80 MHz，128KB Flash）</td></tr>
+<tr><td>层叠结构</td><td>4 层（顶层信号 / GND / POWER / 底层信号）</td></tr>
+<tr><td>贴片工艺</td><td>嘉立创 SMT（钢网+回流焊）</td></tr>
+<tr><td>打样数量</td><td>10 片（首批试产 + 备件）</td></tr>
+<tr><td>单板成本</td><td><strong>500 元</strong>（含 PCB + 主控 + 元器件贴片）</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">10.2 三大功能模块</h3>
+<table>
+<thead>
+<tr><th>功能</th><th>实现方式</th><th>关键器件</th><th>性能</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>① 电源滤波</strong></td>
+<td>π 型 LC 滤波 + EMI 抑制</td>
+<td>共模电感 + X2 安规电容 + TVS 二极管</td>
+<td>共模抑制 ≥40 dB（10MHz~1GHz）</td>
+</tr>
+<tr>
+<td><strong>② 时间同步</strong></td>
+<td>PPS 输入/输出 + GPS/PTP</td>
+<td>SMA 接口 + 1PPS 调理电路 + STM32 定时器捕获</td>
+<td>同步精度 ≤1 ms</td>
+</tr>
+<tr>
+<td><strong>③ 相机触发</strong></td>
+<td>4 路 GPIO 隔离输出</td>
+<td>光耦隔离（TLP181）+ 达林顿驱动（ULN2803）</td>
+<td>触发脉宽可调 1μs~1ms，输出 ≥5V/10mA</td>
+</tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">10.3 单板成本核算（500 元分解）</h3>
+<table>
+<thead>
+<tr><th>项目</th><th class="num">数量</th><th class="num">单价(元)</th><th class="num">小计(元)</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>PCB 板（嘉立创 4 层 10×10cm）</td><td class="num">1</td><td class="num">80</td><td class="num">80</td><td>10 片起打，单板摊销</td></tr>
+<tr><td>STM32H750 主控</td><td class="num">1</td><td class="num">60</td><td class="num">60</td><td>含 LQFP100 封装</td></tr>
+<tr><td>电源滤波器件（LC + TVS）</td><td class="num">1 套</td><td class="num">40</td><td class="num">40</td><td>π 型 LC + 共模电感</td></tr>
+<tr><td>PPS 调理电路</td><td class="num">1 套</td><td class="num">30</td><td class="num">30</td><td>比较器 + 施密特触发器</td></tr>
+<tr><td>4 路光耦隔离（TLP181）</td><td class="num">4</td><td class="num">5</td><td class="num">20</td><td>相机触发输出</td></tr>
+<tr><td>达林顿驱动 ULN2803</td><td class="num">1</td><td class="num">8</td><td class="num">8</td><td>驱动能力增强</td></tr>
+<tr><td>SMA 接口（PPS 输入 + 4 路输出）</td><td class="num">5</td><td class="num">15</td><td class="num">75</td><td>—</td></tr>
+<tr><td>电源端子 / 接插件</td><td class="num">1 套</td><td class="num">40</td><td class="num">40</td><td>—</td></tr>
+<tr><td>无源器件（电阻电容）</td><td class="num">1 套</td><td class="num">30</td><td class="num">30</td><td>—</td></tr>
+<tr><td>晶振 + 滤波电容</td><td class="num">1 套</td><td class="num">15</td><td class="num">15</td><td>—</td></tr>
+<tr><td>SMT 贴片 + 测试</td><td class="num">1</td><td class="num">80</td><td class="num">80</td><td>嘉立创 SMT</td></tr>
+<tr><td>固件烧录 + 测试治具</td><td class="num">1</td><td class="num">22</td><td class="num">22</td><td>—</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="3">单板成本合计</td><td class="num">500</td><td>元/板 ✅</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">10.4 项目总投入（10 片首批）</h3>
+<table>
+<thead>
+<tr><th>项目</th><th class="num">数量</th><th class="num">单价(元)</th><th class="num">小计(元)</th></tr>
+</thead>
+<tbody>
+<tr><td>PCB 打样（10 片 4 层）</td><td class="num">10</td><td class="num">80</td><td class="num">800</td></tr>
+<tr><td>主控 + 元器件（10 套）</td><td class="num">10</td><td class="num">318</td><td class="num">3,180</td></tr>
+<tr><td>SMT 贴片（10 片）</td><td class="num">10</td><td class="num">80</td><td class="num">800</td></tr>
+<tr><td>飞针测试 / 治具</td><td class="num">1</td><td class="num">220</td><td class="num">220</td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;"><td colspan="3">首批 10 片 PCB 总投入</td><td class="num">5,000</td></tr>
+</tbody>
+</table>
+
+<div class="alert" style="margin-top: 16px;">
+<strong>📊 对比商用方案：</strong>
+<ul style="margin-left: 20px; line-height: 1.8;">
+<li>商用 FPGA 板 + 独立触发器 + 滤波器：约 <strong>1,020 元/套</strong></li>
+<li>自研一体化板：<strong>500 元/板</strong></li>
+<li><strong>节省：520 元/套（51.0%）</strong></li>
+<li><strong>额外收益：完全可控（固件可改）+ 国产化（无供应链风险）</strong></li>
+</ul>
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">10.5 自研 PCB 风险与缓解</h3>
+<table>
+<thead>
+<tr><th>风险</th><th>等级</th><th>缓解措施</th></tr>
+</thead>
+<tbody>
+<tr><td>首次调试周期 2-4 周</td><td>🟡 中</td><td>M4 焊接 + 单测时间充足；10 片批量留余量</td></tr>
+<tr><td>SMT 贴片良率</td><td>🟡 中</td><td>嘉立创 SMT 良率 99%+；预留备件</td></tr>
+<tr><td>固件稳定性</td><td>🟡 中</td><td>STM32 成熟方案；M3 启动软件研发，M5 联调</td></tr>
+<tr><td>4 层板信号完整性</td><td>🟢 低</td><td>嘉立创 4 层板工艺成熟；关键信号加屏蔽</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============== ⑪ 系统框架 + AI 异常识别训练预算 ============== -->
+<div class="section" id="sec11">
+<div class="section-title"><span class="section-num">⑪</span>系统框架 + AI 异常识别训练预算</div>
+
+<div class="alert info">
+<strong>🏗 架构视图：</strong>系统分 4 层 — 感知层 / 算力层 / 应用层 / 交互层。AI 异常识别模块嵌入应用层，与 Qt 上位机深度集成。
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 16px 0 8px 0;">11.1 系统整体架构图</h3>
+<div class="flow-diagram">
+<pre style="margin: 0;">
+┌─────────────────────────────────────────────────────────────────┐
+│ 车顶安装层（车顶 → 车内 走线）                                  │
+│  [蘑菇头×2 ≥30cm]  [XT32]  [4×全局快门相机]                  │
+│       ↓GPS/PTP         ↓百兆网       ↓USB3.0/GigE+触发        │
+└─────────────────────────────────────────────────────────────────┘
+                              │ 车顶 → 车内 主线缆（电源 + 网络 + 同轴）
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ 铝合金 CNC 机箱（IP65，骨架 + 分体CNC）                       │
+│ ┌─────────────────────────────┐    ┌──────────────────┐         │
+│ │ Jetson Orin NX 16GB (100 TOPS)│    │ 2×1TB SSD         │         │
+│ │ + ADIS16477-3 IMU            │    │ 2×8TB HDD (17TB)  │         │
+│ └─────────────────────────────┘    └──────────────────┘         │
+│ ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐          │
+│ │ UMD982 RTK   │  │ DC-DC 24V→   │  │ 千兆交换机        │          │
+│ │ + 蘑菇头 ×2  │  │ 5/12/19V     │  │ (Intel i350)     │          │
+│ └──────────────┘  └──────────────┘  └─────────────────┘          │
+│ ┌──────────────────────────────────────────────────────┐          │
+│ │ PCB 自研一体化板（500元）                             │          │
+│ │ ① 电源滤波  ② 时间同步（PPS/PTP）  ③ 相机触发       │          │
+│ └──────────────────────────────────────────────────────┘          │
+│ ┌──────────────┐                                                  │
+│ │ 锂电池 24V/10Ah + BMS（UPS 备用）                   │          │
+│ └──────────────┘                                                  │
+│ 钢丝减震器 ×8（车顶振动防护）                                    │
+└─────────────────────────────────────────────────────────────────┘
+                              │  AC220V → DC24V（外供电）
+                              ↓
+                       车内 220V 电源
+
+                      ↓↓↓ 软件数据流 ↓↓↓
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ROS2 Humble 中间件（Ubuntu 22.04）                              │
+│ /lidar_points  /camera_0..3/image  /imu/data  /gnss/fix        │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ 应用层（SLAM + AI + Qt）                                        │
+│ • FAST-LIO2（LiDAR-IMU 紧耦合 SLAM）                            │
+│ • 点云去畸变 / 配准 / 拼接                                       │
+│ • YOLOv8x 多任务异常识别（异物/周边/施工）                       │
+│ • TensorRT FP16 推理（≤30ms/帧）                                │
+│ • 实时告警（≤500ms 延迟）                                        │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ 交互层（Qt 6 上位机）                                            │
+│ • 实时点云/图像显示                                              │
+│ • 数据录制（ROS Bag + MP4）                                      │
+│ • 回放 / 导出 / 标注（CVAT 闭环）                                │
+│ • AI 告警弹窗 + 声光 + 日志                                      │
+└─────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+
+<h3 style="font-size: 15px; color: var(--ai); margin: 20px 0 8px 0;">11.2 AI 异常识别数据流（核心模块）</h3>
+<div class="flow-diagram">
+<pre style="margin: 0;">
+<span style="color: #0ea5e9;">[4 路相机 + LiDAR]</span> → ROS2 话题
+    ↓
+<span style="color: #a855f7;">[图像预处理]</span> Orin NX 实时解码（640×640@30fps）
+    ↓
+<span style="color: #a855f7;">[YOLOv8x 检测]</span> TensorRT FP16 推理（≤30ms / 帧）
+    ↓
+<span style="color: #a855f7;">[多任务输出]</span> 异物 / 周边变化 / 施工 类别 + 置信度
+    ↓
+<span style="color: #10b981;">[实时告警]</span> Qt 上位机弹窗 + 声光 + 日志（延迟 ≤500ms）
+    ↓
+<span style="color: #94a3b8;">[数据回灌]</span> 触发录像 + 标注工具 CVAT 闭环
+</pre>
+</div>
+
+<h3 style="font-size: 15px; color: var(--ai); margin: 20px 0 8px 0;">11.3 AI 多任务定义</h3>
+<table>
+<thead>
+<tr><th class="num">#</th><th>类别</th><th>典型目标</th><th>判定标准</th><th>告警等级</th></tr>
+</thead>
+<tbody>
+<tr><td class="num">1</td><td><strong>异物入侵</strong></td><td>落石 / 行人 / 车辆 / 牲畜 / 抛洒物</td><td>距轨道中心 ≤10m</td><td>🔴 紧急</td></tr>
+<tr><td class="num">2</td><td><strong>周边环境变化</strong></td><td>新建筑 / 违建 / 取土 / 植被生长 / 水浸</td><td>前后帧对比差异 ≥30%</td><td>🟡 关注</td></tr>
+<tr><td class="num">3</td><td><strong>施工作业</strong></td><td>施工人员 / 机械 / 围挡 / 警示牌</td><td>保护区范围内人员/设备</td><td>🟡 关注</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--ai); margin: 20px 0 8px 0;">11.4 AI 异常识别训练预算（23,000 元）</h3>
+<div class="kpi-grid">
+<div class="kpi-card ai">
+<div class="kpi-label">AI 训练总预算</div>
+<div class="kpi-value ai">23,000<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">GPU 8,000 + 标注 15,000</div>
+</div>
+<div class="kpi-card ai">
+<div class="kpi-label">GPU 租赁</div>
+<div class="kpi-value ai">8,000<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">A100/A800 × 4 月</div>
+</div>
+<div class="kpi-card ai">
+<div class="kpi-label">数据标注</div>
+<div class="kpi-value ai">15,000<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">3000 张精标 @5 元/张</div>
+</div>
+<div class="kpi-card ai">
+<div class="kpi-label">推理算力</div>
+<div class="kpi-value ai">0<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">Orin NX 已含（100 TOPS）</div>
+</div>
+</div>
+
+<h3 style="font-size: 15px; color: var(--ai); margin: 20px 0 8px 0;">11.5 AI 训练时间线（11 个月滚动迭代）</h3>
+<table>
+<thead>
+<tr><th>阶段</th><th>时间</th><th class="num">数据量</th><th>里程碑</th></tr>
+</thead>
+<tbody>
+<tr style="background: var(--ai-bg);"><td><strong>预研期</strong></td><td>M2-M3</td><td class="num">公开数据集</td><td>框架选型 + 基础 demo</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>预训练</strong></td><td>M4-M5</td><td class="num">公开 1 万张</td><td>CVAT 工具就绪</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>采集 1</strong></td><td>M6-M7</td><td class="num">500 张现场</td><td>推理引擎集成 Orin NX</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>微调 V1</strong></td><td>M8-M9</td><td class="num">2000 张精标</td><td>★A7-AI V1.0（mAP ≥0.65）</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>采集 2</strong></td><td>M10</td><td class="num">3000 张</td><td>★A8-AI 数据扩展</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>微调 V2</strong></td><td>M11</td><td class="num">5000 张</td><td>★A9-AI V2（mAP ≥0.75）</td></tr>
+<tr style="background: var(--ai-bg);"><td><strong>验收</strong></td><td>M12</td><td class="num">5000 张</td><td>★A10-AI 验收 + 实时告警</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size: 15px; color: var(--ai); margin: 20px 0 8px 0;">11.6 AI 工具链</h3>
+<table>
+<thead>
+<tr><th>环节</th><th>工具</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>检测框架</td><td>YOLOv8x（ultralytics）</td><td>多任务 + 高精度（mAP@0.5 ≥0.75 可达）</td></tr>
+<tr><td>备选框架</td><td>Detectron2</td><td>M2 评估后决定</td></tr>
+<tr><td>推理加速</td><td>TensorRT FP16</td><td>Orin NX 部署（≤30ms / 帧）</td></tr>
+<tr><td>数据标注</td><td>CVAT（自部署）</td><td>M4 起 3000 张精标 + 自标辅助</td></tr>
+<tr><td>训练平台</td><td>云端 A100/A800 租赁</td><td>M9-M11 月租 2,000 元</td></tr>
+<tr><td>数据回灌</td><td>Qt 客户端一键导出</td><td>触发录像自动入库</td></tr>
+<tr><td>验证指标</td><td>mAP@0.5 / 召回 / 误报率</td><td>每日训练日志归档</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============== ⑫ 风险与权衡 ============== -->
+<div class="section" id="sec12">
+<div class="section-title"><span class="section-num">⑫</span>风险与权衡</div>
+
+<div class="alert warning">
+<strong>⚠️ 风险总览：</strong>本章节梳理项目核心风险及缓解策略，按<strong>高 / 中 / 低</strong>分级，给出明确的权衡与应对。
+</div>
+
+<div class="risk-grid">
+
+<div class="risk-card danger">
+<h4>🔴 高风险项</h4>
+<ul>
+<li><strong>招聘延迟（11-15 死线）</strong><br>
+11-15 之前 2 岗未到岗，将吃掉 Month 2 黄金开发期。<br>
+<b>缓解：</b>10-8 即启动招聘；多渠道同步；猎头加速。
+</li>
+<li><strong>硬件 Month 7 未达标</strong><br>
+7 个月内完成整机联调时间紧。<br>
+<b>缓解：</b>Month 1 即开始关键器件采购；并行作业（外壳 + 焊接 + 驱动开发）。
+</li>
+<li><strong>上车联调拖期</strong><br>
+铁路局许可、装车方案协调难。<br>
+<b>缓解：</b>Month 1 末（10-30）即启动铁路局协调。
+</li>
+</ul>
+</div>
+
+<div class="risk-card warning">
+<h4>🟡 中风险项</h4>
+<ul>
+<li><strong>SLAM 精度不达标</strong><br>
+数据质量差影响验收。<br>
+<b>缓解：</b>Month 6 即开始 SLAM 仿真；备选 LeGO-LOAM。
+</li>
+<li><strong>PC 端单人多任务压力（Qt+ROS2+AI）</strong><br>
+1 人需同时承担 Qt 上位机 + ROS2 桥接 + AI 异常识别训练部署，技术栈跨度大。<br>
+<b>缓解：</b>候选人必须 AI + Qt 全栈；M3 即开始 AI 预研；YOLOv8 框架成熟，避免自研算法。
+</li>
+<li><strong>AI 多任务训练时间紧</strong><br>
+12 个月内完成 3 类异常（异物/周边/施工）+ 预训练 + 微调 + 部署。<br>
+<b>缓解：</b>采用预训练模型 + 现场微调（5000 张即可达 mAP≥0.75）；Month 6 起每周采集 200 张。
+</li>
+<li><strong>PC 端开发窗口期短</strong><br>
+PC 端 11-15 到岗，前期主要做基础工作，主体完善在 Month 7+。<br>
+<b>缓解：</b>前期做好架构和数据接口；联调期集中开发。
+</li>
+<li><strong>外壳 4 次迭代成本控制</strong><br>
+24,000 元用于 4 次 CNC 加工。<br>
+<b>缓解：</b>采用"骨架通用 + 上下盖板迭代"模式，只改盖板。
+</li>
+<li><strong>PCB 一次成功率</strong><br>
+<b>缓解：</b>10 片批量；预留备件；M4 单测充分。
+</li>
+</ul>
+</div>
+
+<div class="risk-card success">
+<h4>✅ 关键优势</h4>
+<ul>
+<li><strong>核心人员深度匹配：</strong>赵庆尧 11 年 SLAM/车载经验，硬件+PCB+嵌入式+算法全栈</li>
+<li><strong>院校背景一致：</strong>3 人均武大背景（测绘+遥感），沟通成本低</li>
+<li><strong>硬件成熟：</strong>XT32/Orin NX/IMU/UMD982 均为行业成熟方案</li>
+<li><strong>分层采购节省预算：</strong>相比 4 倍统一方案节省 44.9%（101,170 元）</li>
+<li><strong>PCB 自研可控：</strong>500 元实现 3 大功能，完全可控可改</li>
+<li><strong>阶段清晰：</strong>前 6 月硬件、6 月上车，里程碑明确</li>
+</ul>
+</div>
+
+<div class="risk-card">
+<h4>💡 关键时间原则</h4>
+<ul>
+<li><strong>Month 1 是关键月：</strong>项目启动 + 招聘 + 关键采购三线并行</li>
+<li><strong>Month 7 是分水岭：</strong>硬件样机完成 + 装车准备开始</li>
+<li><strong>PC 端策略：</strong>前期基础（数据流/UI 框架），联调期完善（核心功能/性能）</li>
+<li><strong>外壳迭代策略：</strong>通用骨架 + 上下盖板迭代，降低成本</li>
+<li><strong>AI 策略：</strong>预训练 + 现场微调（数据量 5000 张即可达 mAP≥0.75）</li>
+</ul>
+</div>
+
+</div>
+
+<h3 style="font-size: 15px; color: var(--primary); margin: 20px 0 8px 0;">12.X 关键权衡表</h3>
+<table>
+<thead>
+<tr><th>权衡项</th><th>选择</th><th>备选</th><th>理由</th></tr>
+</thead>
+<tbody>
+<tr><td>LiDAR 型号</td><td>XT32 批量价 18,000</td><td>XT32M（22,000）</td><td>性能差异小，价格敏感</td></tr>
+<tr><td>IMU 选型</td><td>ADIS16477-3（4,500）</td><td>ADIS16505-2（2,500）</td><td>零偏 0.8°/h vs 10°/h，高精度需求</td></tr>
+<tr><td>工控主板</td><td>Orin NX 16GB（8,000）</td><td>AGX Orin 64GB（30,000+）</td><td>100 TOPS 足够，省 22,000</td></tr>
+<tr><td>存储</td><td>2×1TB SSD + 2×8TB HDD</td><td>4×8TB SSD（贵 4 倍）</td><td>HDD 容量大、成本低</td></tr>
+<tr><td>外壳</td><td>骨架 + 分体 CNC（6,000）</td><td>整体 CNC（10,000）</td><td>模块化检修，省 4,000</td></tr>
+<tr><td>PCB 板</td><td>自研 500 元</td><td>商用 1,020 元</td><td>可控 + 节省 51%</td></tr>
+<tr><td>摄像头</td><td>≤1000 元全局快门</td><td>海康 3000 元/个</td><td>降本 66%，性能略降</td></tr>
+<tr><td>防护等级</td><td>IP65</td><td>IP67</td><td>雨雪可用，成本可控</td></tr>
+<tr><td>AI 框架</td><td>YOLOv8x</td><td>Detectron2</td><td>速度快、部署成熟</td></tr>
+<tr><td>团队规模</td><td>3 人</td><td>5 人</td><td>成本约束下 3 人可完成</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="footer">
+<p>📄 项目：车载式铁路周边环境巡检设备 · 版本：V4.00</p>
+<p>编制日期：2026-09-18 · 启动 2026-10-08 · 验收 2027-09-30 · 总预算 ≈ 152.3 万元 · 12 个月周期</p>
+</div>
+
+</div>
+
+<script>
+const saved = localStorage.getItem('plan-theme-v4');
+if (saved) document.documentElement.setAttribute('data-theme', saved);
+document.querySelector('.theme-toggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme') || '';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('plan-theme-v4', next); } catch(e) {}
+});
+</script>
+</body>
+</html>

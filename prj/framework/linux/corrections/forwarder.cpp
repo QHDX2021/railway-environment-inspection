@@ -1,0 +1,2 @@
+#include "linux/corrections/forwarder.hpp"
+namespace rail {Status CorrectionForwarder::step(uint64_t now){CorrectionChunk c;auto s=src_.next(c);if(s.eof)return Status::failure(ErrorCode::Timeout,"source closed");if(!s.status.ok())return s.status;if(now<c.received_monotonic_ns||now-c.received_monotonic_ns>max_age_)return Status::failure(ErrorCode::Timeout,"stale correction");return dst_.write_correction({c.data.data(),c.data.size()});}}

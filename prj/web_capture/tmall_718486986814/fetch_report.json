@@ -1,0 +1,14 @@
+{
+  "requested_url": "https://detail.tmall.com/item.htm?id=718486986814&skuId=5650971165647",
+  "fetched_at_utc": "2026-09-30T10:00:10.566159+00:00",
+  "method": "Public HTTP GET; no cookies or authentication supplied",
+  "status": 200,
+  "final_url": "https://detail.tmall.com/item.htm?id=718486986814&skuId=5650971165647",
+  "content_type": "text/html;charset=utf-8",
+  "bytes_read": 5143,
+  "encoding": "utf-8",
+  "title": "",
+  "meta": [],
+  "visible_text_preview": "",
+  "keyword_hit_count_capped_35": 0
+}

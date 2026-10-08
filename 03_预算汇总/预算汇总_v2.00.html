@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车载式铁路周边环境巡检设备 — 预算汇总 V2.00</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f8fafc;
+  --bg-card: #ffffff;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --text-soft: #94a3b8;
+  --primary: #0ea5e9;
+  --primary-dark: #0284c7;
+  --success: #10b981;
+  --success-bg: #d1fae5;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --danger: #ef4444;
+  --danger-bg: #fee2e2;
+  --info-bg: #dbeafe;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a; --bg-alt: #1e293b; --bg-card: #1e293b;
+    --border: #334155; --border-strong: #475569;
+    --text: #f1f5f9; --text-muted: #cbd5e1; --text-soft: #94a3b8;
+    --primary: #38bdf8; --primary-dark: #0ea5e9;
+    --success: #34d399; --success-bg: #064e3b;
+    --warning: #fbbf24; --warning-bg: #78350f;
+    --danger: #f87171; --danger-bg: #7f1d1d;
+    --info-bg: #1e3a8a; --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+}
+[data-theme="dark"] {
+  --bg: #0f172a; --bg-alt: #1e293b; --bg-card: #1e293b;
+  --border: #334155; --border-strong: #475569;
+  --text: #f1f5f9; --text-muted: #cbd5e1; --text-soft: #94a3b8;
+  --primary: #38bdf8; --primary-dark: #0ea5e9;
+  --success: #34d399; --success-bg: #064e3b;
+  --warning: #fbbf24; --warning-bg: #78350f;
+  --danger: #f87171; --danger-bg: #7f1d1d;
+  --info-bg: #1e3a8a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.6; padding: 24px;
+}
+.container { max-width: 1280px; margin: 0 auto; }
+header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid var(--primary); }
+h1 { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+.subtitle { color: var(--text-muted); font-size: 14px; }
+.version-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 12px;
+}
+.theme-toggle {
+  position: fixed; top: 16px; right: 16px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  font-size: 13px; color: var(--text);
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px; margin-bottom: 32px;
+}
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.kpi-card.highlight {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, var(--info-bg), var(--bg-card));
+}
+.kpi-label { color: var(--text-muted); font-size: 13px; margin-bottom: 8px; }
+.kpi-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+.kpi-value.success { color: var(--success); }
+.kpi-value.primary { color: var(--primary); }
+.kpi-unit { font-size: 14px; color: var(--text-muted); margin-left: 4px; }
+.kpi-meta { font-size: 12px; color: var(--text-soft); margin-top: 8px; }
+.section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.section-title {
+  font-size: 18px; font-weight: 600;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+  content: ''; width: 4px; height: 18px;
+  background: var(--primary); border-radius: 2px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+tr:hover { background: var(--bg-alt); }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tag {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 4px; font-size: 11px; font-weight: 600;
+}
+.tag.success { background: var(--success-bg); color: var(--success); }
+.tag.warning { background: var(--warning-bg); color: var(--warning); }
+.tag.info { background: var(--info-bg); color: var(--primary-dark); }
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 200px 1fr 100px; gap: 12px; align-items: center; }
+.bar-label { font-size: 13px; color: var(--text-muted); }
+.bar-track { height: 24px; background: var(--bg-alt); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); border-radius: 4px; transition: width 0.4s; }
+.bar-value { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+.alert {
+  padding: 12px 16px; border-radius: 8px;
+  background: var(--success-bg); color: var(--success);
+  border-left: 4px solid var(--success);
+  font-size: 14px; margin-bottom: 16px;
+}
+.alert strong { font-weight: 700; }
+.alert.info { background: var(--info-bg); color: var(--primary-dark); border-left-color: var(--primary); }
+.alert.warning { background: var(--warning-bg); color: var(--warning); border-left-color: var(--warning); }
+.progress-bar { height: 8px; background: var(--bg-alt); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.progress-fill { height: 100%; background: var(--success); transition: width 0.4s; }
+.feature-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+@media (max-width: 768px) { .feature-grid { grid-template-columns: 1fr; } }
+.feature-card {
+  padding: 14px; background: var(--bg-alt);
+  border-radius: 8px; border-left: 3px solid var(--primary);
+  font-size: 13px;
+}
+.feature-card .num { font-weight: 700; color: var(--primary); margin-right: 8px; }
+.feature-card .title { font-weight: 600; margin-bottom: 4px; }
+.feature-card .desc { color: var(--text-muted); font-size: 12px; }
+.spec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 768px) { .spec-grid { grid-template-columns: 1fr; } }
+.spec-card { padding: 16px; background: var(--bg-alt); border-radius: 8px; }
+.spec-card h4 { font-size: 14px; margin-bottom: 12px; color: var(--primary); font-weight: 600; }
+.spec-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+.spec-item:last-child { border-bottom: none; }
+.spec-key { color: var(--text-muted); }
+.spec-val { font-weight: 600; }
+.arch-diagram {
+  background: var(--bg-alt);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  color: var(--text);
+}
+.footer { text-align: center; padding: 16px; color: var(--text-soft); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>🚄 车载式铁路周边环境巡检设备<span class="version-badge">V2.00</span></h1>
+<p class="subtitle">预算汇总 · 编制日期 2026-09-07 · 项目目标 ≤ 6 万元 · 已达成</p>
+</header>
+
+<button class="theme-toggle" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')">🌓 切换主题</button>
+
+<div class="alert">
+<strong>✅ 预算达成：</strong>整机总价 <strong>56,325 元</strong>（不含税），<strong>控制在 6 万元预算内</strong>，用户 9 项约束全部满足。
+</div>
+
+<div class="kpi-grid">
+<div class="kpi-card highlight">
+<div class="kpi-label">整机总价</div>
+<div class="kpi-value primary">56,325<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">不含税</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">预算达成率</div>
+<div class="kpi-value success">93.9<span class="kpi-unit">%</span></div>
+<div class="kpi-meta">6万预算 / 56,325元</div>
+<div class="progress-bar"><div class="progress-fill" style="width: 93.9%"></div></div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">用户指定部件</div>
+<div class="kpi-value">47,260<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">占整机 83.9%</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">补齐配件</div>
+<div class="kpi-value">9,065<span class="kpi-unit">元</span></div>
+<div class="kpi-meta">占整机 16.1%</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">约束达成</div>
+<div class="kpi-value success">9/9<span class="kpi-unit">项</span></div>
+<div class="kpi-meta">用户约束全部满足</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-label">预算上限达成</div>
+<div class="kpi-value success">6/6<span class="kpi-unit">项</span></div>
+<div class="kpi-meta">用户预算约束</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">📋 项目亮点（9 项核心特性）</div>
+<div class="feature-grid">
+<div class="feature-card">
+<div class="num">①</div>
+<div class="title">XT32 32线激光雷达</div>
+<div class="desc">360°×31° 视场，120m 测程，IP6K7</div>
+</div>
+<div class="feature-card">
+<div class="num">②</div>
+<div class="title">ADIS16477-3 IMU</div>
+<div class="desc">零偏 0.8°/h，±40g 高精度宽量程</div>
+</div>
+<div class="feature-card">
+<div class="num">③</div>
+<div class="title">UMD982 + 双蘑菇头</div>
+<div class="desc">1408 通道，厘米级 RTK 定位</div>
+</div>
+<div class="feature-card">
+<div class="num">④</div>
+<div class="title">锂电池 UPS 备用</div>
+<div class="desc">24V/10Ah LiFePO4，断电保护</div>
+</div>
+<div class="feature-card">
+<div class="num">⑤</div>
+<div class="title">CNC 骨架+分体</div>
+<div class="desc">IP65 防护，便于检修维护</div>
+</div>
+<div class="feature-card">
+<div class="num">⑥</div>
+<div class="title">4路 全局快门相机</div>
+<div class="desc">≤1000元/个，大恒/华睿</div>
+</div>
+<div class="feature-card">
+<div class="num">⑦</div>
+<div class="title">17TB 混合存储</div>
+<div class="desc">2×1TB SSD + 2×8TB HDD</div>
+</div>
+<div class="feature-card">
+<div class="num">⑧</div>
+<div class="title">钢丝减震 ×8</div>
+<div class="desc">车顶振动防护</div>
+</div>
+<div class="feature-card">
+<div class="num">⑨</div>
+<div class="title">PCB 自研一体板</div>
+<div class="desc">电源滤波+时间同步+相机触发</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">📦 用户指定部件明细（9 项核心）</div>
+<table>
+<thead>
+<tr><th>#</th><th>部件</th><th>型号/规格</th><th class="num">单价(元)</th><th class="num">小计(元)</th><th>关键参数</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>激光雷达</td><td>禾赛 XT32</td><td class="num">18,000</td><td class="num">18,000</td><td>32线 / 120m / 360°×31° / IP6K7</td></tr>
+<tr><td>2</td><td>IMU</td><td>ADIS16477-3</td><td class="num">4,500</td><td class="num">4,500</td><td>零偏 0.8°/h / ±40g / SPI</td></tr>
+<tr><td>3</td><td>定位模组</td><td>和芯星通 UMD982</td><td class="num">340</td><td class="num">340</td><td>1408通道 / 双天线RTK</td></tr>
+<tr><td>4</td><td>GNSS天线 ×2</td><td>国产多频段蘑菇头</td><td class="num">260 ×2</td><td class="num">520</td><td>L1+L2+L5 / ≥36dB</td></tr>
+<tr><td>5</td><td>工控主板</td><td>Jetson Orin NX 16GB</td><td class="num">8,000</td><td class="num">8,000</td><td>100 TOPS / 16GB LPDDR5</td></tr>
+<tr><td>6</td><td>工业摄像头 ×4</td><td>≤1000元全局快门</td><td class="num">1,000 ×4</td><td class="num">4,000</td><td>大恒/华睿 / 500万像素</td></tr>
+<tr><td>7</td><td>存储（混合）</td><td>2×1TB SSD + 2×8TB HDD</td><td class="num">—</td><td class="num">3,900</td><td>三星 980 / 西部数据 HC320 / 17TB</td></tr>
+<tr><td>8</td><td>CNC 外壳</td><td>骨架 + 分体CNC（IP65）</td><td class="num">6,000</td><td class="num">6,000</td><td>铝6061 / 模块化</td></tr>
+<tr><td>9</td><td>锂电池 + BMS</td><td>24V/10Ah LiFePO4</td><td class="num">2,000</td><td class="num">2,000</td><td>UPS 备用 1h</td></tr>
+<tr style="background: var(--info-bg); font-weight: 700;">
+<td colspan="4">用户指定部件小计</td>
+<td class="num">47,260</td>
+<td>占整机 83.9%</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="section">
+<div class="section-title">🧩 补齐配件（7 模块）</div>
+<div class="bar-chart">
+<div class="bar-row"><span class="bar-label">A. 同步与采集（PCB自研）</span><div class="bar-track"><div class="bar-fill" style="width: 33%"></div></div><span class="bar-value">1,170元</span></div>
+<div class="bar-row"><span class="bar-label">B. 电源系统（不含电池）</span><div class="bar-track"><div class="bar-fill" style="width: 53%"></div></div><span class="bar-value">1,860元</span></div>
+<div class="bar-row"><span class="bar-label">C. 散热系统</span><div class="bar-track"><div class="bar-fill" style="width: 20%"></div></div><span class="bar-value">710元</span></div>
+<div class="bar-row"><span class="bar-label">D. 网络与通信</span><div class="bar-track"><div class="bar-fill" style="width: 17%"></div></div><span class="bar-value">600元</span></div>
+<div class="bar-row"><span class="bar-label">E. 连接器与线缆</span><div class="bar-track"><div class="bar-fill" style="width: 32%"></div></div><span class="bar-value">1,110元</span></div>
+<div class="bar-row"><span class="bar-label">F. 结构与安装</span><div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div><span class="bar-value">3,500元</span></div>
+<div class="bar-row"><span class="bar-label">G. 监控与指示</span><div class="bar-track"><div class="bar-fill" style="width: 3%"></div></div><span class="bar-value">115元</span></div>
+</div>
+<div style="margin-top: 16px; padding: 12px; background: var(--bg-alt); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+<strong>补齐配件总计</strong>
+<span style="font-size: 20px; font-weight: 700; color: var(--primary);">9,065元</span>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">💰 用户预算上限达成（6 项约束）</div>
+<table>
+<thead>
+<tr><th>部件</th><th class="num">用户上限</th><th class="num">实际</th><th class="num">节省</th><th>达成率</th><th>状态</th></tr>
+</thead>
+<tbody>
+<tr><td>激光雷达</td><td class="num">25,000元</td><td class="num">18,000元</td><td class="num">7,000元</td><td><div class="progress-bar"><div class="progress-fill" style="width: 28%"></div></div></td><td><span class="tag success">✅ 达标</span></td></tr>
+<tr><td>IMU</td><td class="num">5,000元</td><td class="num">4,500元</td><td class="num">500元</td><td><div class="progress-bar"><div class="progress-fill" style="width: 90%"></div></div></td><td><span class="tag success">✅ 达标</span></td></tr>
+<tr><td>定位 + 天线</td><td class="num">1,000元</td><td class="num">860元</td><td class="num">140元</td><td><div class="progress-bar"><div class="progress-fill" style="width: 14%"></div></div></td><td><span class="tag success">✅ 达标</span></td></tr>
+<tr><td>工控机</td><td class="num">20,000元</td><td class="num">8,000元</td><td class="num">12,000元</td><td><div class="progress-bar"><div class="progress-fill" style="width: 60%"></div></div></td><td><span class="tag success">✅ 达标</span></td></tr>
+<tr><td>存储</td><td class="num">10,000元</td><td class="num">3,900元</td><td class="num">6,100元</td><td><div class="progress-bar"><div class="progress-fill" style="width: 61%"></div></div></td><td><span class="tag success">✅ 达标</span></td></tr>
+<tr><td>外壳</td><td class="num">10,000元</td><td class="num">6,000元</td><td class="num">4,000元</td><td><div class="progress-bar"><div class="progress-fill" style="width: 60%"></div></div></td><td><span class="tag success">✅ 达标</span></td></tr>
+<tr style="background: var(--success-bg); font-weight: 700;">
+<td>合计</td><td class="num">71,000元</td><td class="num">41,260元</td><td class="num">29,740元</td><td>—</td><td><span class="tag success">6/6 全部达标</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="section">
+<div class="section-title">🔧 关键技术规格</div>
+<div class="spec-grid">
+<div class="spec-card">
+<h4>激光雷达 XT32</h4>
+<div class="spec-item"><span class="spec-key">线数</span><span class="spec-val">32线</span></div>
+<div class="spec-item"><span class="spec-key">测距范围</span><span class="spec-val">0 ~ 120 m</span></div>
+<div class="spec-item"><span class="spec-key">测距精度</span><span class="spec-val">±2 cm (1σ)</span></div>
+<div class="spec-item"><span class="spec-key">点频</span><span class="spec-val">640,000 点/秒</span></div>
+<div class="spec-item"><span class="spec-key">水平视场角</span><span class="spec-val">360°</span></div>
+<div class="spec-item"><span class="spec-key">垂直视场角</span><span class="spec-val">31°</span></div>
+<div class="spec-item"><span class="spec-key">防护等级</span><span class="spec-val">IP6K7/IP6K9K</span></div>
+<div class="spec-item"><span class="spec-key">接口</span><span class="spec-val">百兆以太网 + GPS/PTP</span></div>
+</div>
+<div class="spec-card">
+<h4>IMU ADIS16477-3</h4>
+<div class="spec-item"><span class="spec-key">陀螺量程</span><span class="spec-val">±450°/s</span></div>
+<div class="spec-item"><span class="spec-key">零偏稳定性</span><span class="spec-val">~0.8°/h</span></div>
+<div class="spec-item"><span class="spec-key">加速度量程</span><span class="spec-val">±40g</span></div>
+<div class="spec-item"><span class="spec-key">接口</span><span class="spec-val">SPI</span></div>
+<div class="spec-item"><span class="spec-key">厂商</span><span class="spec-val">Analog Devices</span></div>
+</div>
+<div class="spec-card">
+<h4>工控机 Jetson Orin NX 16GB</h4>
+<div class="spec-item"><span class="spec-key">CPU</span><span class="spec-val">8-core Arm Cortex-A78AE</span></div>
+<div class="spec-item"><span class="spec-key">GPU</span><span class="spec-val">1024-core Ampere</span></div>
+<div class="spec-item"><span class="spec-key">Tensor Cores</span><span class="spec-val">32</span></div>
+<div class="spec-item"><span class="spec-key">算力</span><span class="spec-val">100 TOPS (INT8)</span></div>
+<div class="spec-item"><span class="spec-key">内存</span><span class="spec-val">16GB LPDDR5</span></div>
+<div class="spec-item"><span class="spec-key">功率档位</span><span class="spec-val">10/15/25W</span></div>
+<div class="spec-item"><span class="spec-key">视频解码</span><span class="spec-val">2× 4K60</span></div>
+<div class="spec-item"><span class="spec-key">厂商</span><span class="spec-val">NVIDIA</span></div>
+</div>
+<div class="spec-card">
+<h4>定位 UMD982 + 双蘑菇头</h4>
+<div class="spec-item"><span class="spec-key">频率</span><span class="spec-val">全系统多频</span></div>
+<div class="spec-item"><span class="spec-key">通道数</span><span class="spec-val">1408 通道</span></div>
+<div class="spec-item"><span class="spec-key">RTK</span><span class="spec-val">支持</span></div>
+<div class="spec-item"><span class="spec-key">双天线定向</span><span class="spec-val">支持</span></div>
+<div class="spec-item"><span class="spec-key">更新率</span><span class="spec-val">最高 50Hz</span></div>
+<div class="spec-item"><span class="spec-key">天线频段</span><span class="spec-val">L1+L2+L5</span></div>
+<div class="spec-item"><span class="spec-key">天线增益</span><span class="spec-val">≥36dB</span></div>
+<div class="spec-item"><span class="spec-key">厂商</span><span class="spec-val">和芯星通</span></div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">🛠 PCB 自研一体化板（关键降本）</div>
+<div class="alert info">
+<strong>设计思路：</strong>将电源滤波 + 时间同步（PPS/PTP） + 相机触发（4路GPIO）集成到一块 4 层 PCB，嘉立创打样 + STM32H7 主控，单板成本 500 元。
+</div>
+<table>
+<thead><tr><th>项目</th><th>规格</th></tr></thead>
+<tbody>
+<tr><td>PCB 工艺</td><td>嘉立创 4 层板，10cm × 10cm</td></tr>
+<tr><td>主控芯片</td><td>STM32H750（ARM Cortex-M7，80MHz）</td></tr>
+<tr><td>功能 1：电源滤波</td><td>π 型 LC 滤波，EMI 抑制</td></tr>
+<tr><td>功能 2：时间同步</td><td>PPS 输入/输出，GPS/PTP 同步</td></tr>
+<tr><td>功能 3：相机触发</td><td>4 路 GPIO 隔离输出，全局同步曝光</td></tr>
+<tr><td>元器件贴片</td><td>嘉立创 SMT 服务（含贴片）</td></tr>
+<tr><td>单板成本</td><td><strong>500 元/板</strong></td></tr>
+<tr><td>优势</td><td>完全可控，便于后续修改</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="section">
+<div class="section-title">🏗 系统架构</div>
+<div class="arch-diagram">                车顶安装层（XT32 360° + 4×全局快门相机 + 2×蘑菇头天线）
+  ┌──────────────────────────────────────────────────────────┐
+  │  [蘑菇头 ×2 ≥30cm]  [XT32]  [4×全局快门相机（≤1000元/个）]  │
+  │  ↓GPS/PTP            ↓百兆网      ↓USB3.0/GigE+触发         │
+  └──────────────────────────────────────────────────────────┘
+               │  车顶 → 车内 主线缆（电源 + 网络）
+               ↓
+  ┌──────────────────────────────────────────────────────────┐
+  │  铝合金 CNC 机箱（骨架 + 分体CNC，IP65）                  │
+  │  ┌──────────────────────────────┐    ┌──────────────┐    │
+  │  │ Jetson Orin NX 16GB (100 TOPS)│    │ 2×1TB SSD    │    │
+  │  │ + ADIS16477-3 IMU            │    │ 2×8TB HDD    │    │
+  │  └──────────────────────────────┘    └──────────────┘    │
+  │  ┌──────────────┐  ┌──────────┐  ┌──────────────┐       │
+  │  │ UMD982 RTK   │  │ DC-DC 电源│  │ 千兆交换机    │       │
+  │  │ + 蘑菇头 ×2  │  │ 24V→5/12/19V│  │（消费级）     │       │
+  │  └──────────────┘  └──────────┘  └──────────────┘       │
+  │  ┌────────────────────────────────────────────────┐       │
+  │  │ PCB 自研一体化板（500元）                       │       │
+  │  │ ① 电源滤波  ② 时间同步（PPS/PTP）  ③ 相机触发 │       │
+  │  └────────────────────────────────────────────────┘       │
+  │  ┌──────────────┐                                          │
+  │  │ 锂电池 24V/10Ah + BMS（UPS 备用 1h）              │      │
+  │  └──────────────┘                                          │
+  │  钢丝减震器 ×8（车顶振动防护）                            │
+  └──────────────────────────────────────────────────────────┘
+                              │  AC220V → DC24V（外供电）
+                              ↓
+                       车内 220V 电源</div>
+</div>
+
+<div class="section">
+<div class="section-title">⚠️ 风险与权衡</div>
+<div class="alert warning">
+<strong>⚠️ 性能妥协项：</strong>
+<ul style="margin-left: 24px; margin-top: 8px; font-size: 13px;">
+<li>摄像头降级：海康 → 1000元国产 → 售后与图像质量略降</li>
+<li>激光雷达批量价：可能无完整保修（可与禾赛谈）</li>
+<li>外壳 IP67 → IP65：雨雪天气防护略降（保留分体CNC+密封）</li>
+<li>PCB 自研：需要 2-4 周调试周期</li>
+</ul>
+</div>
+<div class="alert">
+<strong>✅ 核心能力保留：</strong>
+<ul style="margin-left: 24px; margin-top: 8px; font-size: 13px;">
+<li>XT32 32线 360°激光雷达扫描</li>
+<li>ADIS16477-3 高精度 IMU（零偏 0.8°/h）</li>
+<li>UMD982 + 双蘑菇头 RTK 厘米级定位</li>
+<li>Jetson Orin NX 16GB 算力（100 TOPS）</li>
+<li>17TB 混合存储（2×1TB SSD + 2×8TB HDD）</li>
+<li>锂电池 UPS 备用（断电保护 1h）</li>
+<li>钢丝减震器 ×8（车顶振动防护）</li>
+<li>CNC 骨架+分体CNC（便于检修维护）</li>
+<li>PCB 自研可控（电源滤波+时间同步+相机触发）</li>
+</ul>
+</div>
+</div>
+
+<div class="footer">
+<p>📄 项目：车载式铁路周边环境巡检设备 · 版本：V2.00</p>
+<p>编制日期：2026-09-07 · 整机总价 56,325 元（不含税）≤ 6 万元预算</p>
+</div>
+</div>
+
+<script>
+const saved = localStorage.getItem('budget-theme');
+if (saved) document.documentElement.setAttribute('data-theme', saved);
+document.querySelector('.theme-toggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme') || '';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('budget-theme', next); } catch(e) {}
+});
+</script>
+</body>
+</html>

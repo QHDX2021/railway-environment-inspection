@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X5 项目技术难点与解决方案 · 实战沉淀</title>
+<style>
+  :root {
+    --bg: #fafbfc;
+    --card: #ffffff;
+    --text: #1f2328;
+    --muted: #57606a;
+    --border: #e4e7eb;
+    --accent: #2f6feb;
+    --accent-bg: #eef4ff;
+    --accent-2: #6f42c1;
+    --accent-2-bg: #f3eaff;
+    --accent-3: #1f883d;
+    --accent-3-bg: #e6f4ea;
+    --accent-4: #bf3989;
+    --accent-4-bg: #fce8f3;
+    --tag-bg: #f3f4f6;
+    --code-bg: #f6f8fa;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent-bg: #1f3a5f;
+      --accent-2: #d2a8ff;
+      --accent-2-bg: #3a2d5c;
+      --accent-3: #7ee787;
+      --accent-3-bg: #1d3a26;
+      --accent-4: #ff9bcc;
+      --accent-4-bg: #4a2538;
+      --tag-bg: #21262d;
+      --code-bg: #161b22;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.3);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.7; font-size: 15px; -webkit-font-smoothing: antialiased;
+  }
+  body { max-width: 980px; margin: 0 auto; padding: 48px 28px 96px; }
+  header.cover { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 32px; }
+  header.cover .eyebrow {
+    color: var(--accent); font-weight: 600; letter-spacing: 0.04em; font-size: 13px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  header.cover h1 { font-size: 30px; margin: 0 0 12px; line-height: 1.3; }
+  header.cover p.lead { margin: 0; color: var(--muted); font-size: 15px; }
+  header.cover .meta { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  header.cover .meta span {
+    background: var(--tag-bg); color: var(--muted); font-size: 12px;
+    padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border);
+  }
+  section.toc {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px; margin-bottom: 32px; box-shadow: var(--shadow);
+  }
+  section.toc h2 {
+    font-size: 14px; margin: 0 0 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  section.toc ol { margin: 0; padding-left: 20px; column-count: 2; column-gap: 32px; }
+  section.toc li { margin-bottom: 6px; break-inside: avoid; }
+  section.toc a { color: var(--text); text-decoration: none; }
+  section.toc a:hover { color: var(--accent); }
+  h2.section-title {
+    font-size: 22px; margin: 40px 0 16px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 12px;
+  }
+  h2.section-title .badge {
+    font-size: 12px; padding: 3px 10px; border-radius: 6px;
+    color: white; font-weight: 600;
+  }
+  h2.section-title.A .badge { background: var(--accent); }
+  h2.section-title.B .badge { background: var(--accent-2); }
+  h2.section-title.C .badge { background: var(--accent-3); }
+  h2.section-title.D .badge { background: var(--accent-4); }
+  h2.section-title.E .badge { background: #d97706; }
+  article.item.section-E { border-left: 3px solid #d97706; }
+  h2.section-title.E { border-bottom-color: #d97706; }
+  article.item.section-E .tag { background: #fef3c7; color: #b45309; }
+  article.item.section-E .outcome { background: #fef3c7; border-left-color: #d97706; }
+  article.item.section-E .outcome strong { color: #b45309; }
+  article.item {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 22px 26px; margin-bottom: 18px; box-shadow: var(--shadow);
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  article.item h3 {
+    font-size: 17px; margin: 0 0 10px; display: flex; align-items: baseline; gap: 10px;
+  }
+  article.item h3 .num {
+    color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 700;
+    font-size: 15px; min-width: 36px;
+  }
+  article.item .tags { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  article.item .tag {
+    background: var(--accent-bg); color: var(--accent);
+    font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
+  }
+  article.item dl { margin: 0; display: grid; grid-template-columns: 84px 1fr; gap: 8px 16px; }
+  article.item dt { color: var(--muted); font-weight: 600; font-size: 13px; padding-top: 2px; }
+  article.item dd { margin: 0; }
+  article.item dd ul { margin: 0; padding-left: 18px; }
+  article.item dd li { margin-bottom: 4px; }
+  article.item dd code {
+    background: var(--code-bg); padding: 1px 6px; border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px; border: 1px solid var(--border);
+  }
+  article.item dd pre {
+    background: var(--code-bg); padding: 10px 12px; border-radius: 6px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12.5px; border: 1px solid var(--border);
+    overflow-x: auto; margin: 6px 0; line-height: 1.5;
+  }
+  article.item .outcome {
+    margin-top: 12px; padding: 8px 12px; background: var(--accent-bg);
+    border-left: 3px solid var(--accent); border-radius: 4px; font-size: 13.5px;
+  }
+  article.item .outcome strong { color: var(--accent); }
+  article.item.section-A { border-left: 3px solid var(--accent); }
+  article.item.section-B { border-left: 3px solid var(--accent-2); }
+  article.item.section-C { border-left: 3px solid var(--accent-3); }
+  article.item.section-D { border-left: 3px solid var(--accent-4); }
+  footer.foot {
+    margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 13px; text-align: center;
+  }
+  @media (max-width: 720px) {
+    body { padding: 28px 16px 64px; }
+    header.cover h1 { font-size: 24px; }
+    section.toc ol { column-count: 1; }
+    article.item { padding: 16px 18px; }
+    article.item dl { grid-template-columns: 1fr; gap: 4px 0; }
+    article.item dt { padding-top: 8px; }
+  }
+  @media print {
+    body { background: #fff; padding: 0; max-width: 100%; }
+    article.item, section.toc { box-shadow: none; border-color: #ddd; }
+    article.item { page-break-inside: avoid; }
+    h2.section-title { page-break-after: avoid; }
+    a { color: inherit; text-decoration: none; }
+    footer.foot { display: none !important; }
+  }
+  @page { size: A4; margin: 16mm 14mm; }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="eyebrow">Insta360 X5 · 铁路沿线巡检设备</div>
+  <h1>X5 项目技术难点与解决方案</h1>
+  <p class="lead"><strong>项目范围</strong>：insv_to_project 11 步 MATLAB pipeline（后端）+ VideoGPXAnnotationTool_v30 GUI。</p>
+  <div class="meta">
+    <span>28 条条目</span>
+  </div>
+</header>
+
+<section class="toc">
+  <h2>目录</h2>
+  <ol>
+    <li><a href="#i1">.insv 私有 trailer 流抽取 GPS/IMU</a></li>
+    <li><a href="#i2">exiftool 13.59 RequestAll=3 触发 perl bug</a></li>
+    <li><a href="#i3">exiftool 间歇崩与 Defender 排除</a></li>
+    <li><a href="#i4">QuickTime:CreateDate 无 Z 后缀但值是 UTC</a></li>
+    <li><a href="#i5">.insv 分辨率检测：dual-fisheye → equirect 推算</a></li>
+    <li><a href="#i6">X5 1Hz timelapse 不变量</a></li>
+    <li><a href="#i7">video_start_epoch 必现算，不能复用旧值</a></li>
+    <li><a href="#i8">IMU/GPS 时间对齐：mean_of_ends ±200s</a></li>
+    <li><a href="#i9">GPSDateTime 混 .X / 无小数 + duplicate ts</a></li>
+    <li><a href="#i10">exiftool IMU 输出 1Hz，200Hz 需 binary parser</a></li>
+    <li><a href="#i11">MediaSDK 公开 API 无 GPS，只能 exiftool</a></li>
+    <li><a href="#i12">stitch_to_frames 崩 → MediaSDKTest.exe</a></li>
+    <li><a href="#i13">insv_split.ps1 GPSDateTime 正则锚定 Z</a></li>
+    <li><a href="#i14">GPS 时间用秒 since epoch 排序</a></li>
+    <li><a href="#i15">PowerShell 5.1 不支持 PS6+ `?.`</a></li>
+    <li><a href="#i16">MATLAB fopen 写 binary 0xFF 0xD8 被吃</a></li>
+    <li><a href="#i17">MATLAB fread 'uint64' 只读 4 bytes</a></li>
+    <li><a href="#i18">.NET BinaryReader.ReadBytes 大文件 OOM</a></li>
+    <li><a href="#i19">uigetfile MultiSelect 字符串只接受 on/off</a></li>
+    <li><a href="#i20">GUI 集成必改 prompt_idempotent.m 静默 questdlg</a></li>
+    <li><a href="#i21">V30 uifigure 标题栏高度让位问题</a></li>
+    <li><a href="#i22">V30 WindowState='maximized' 模式敲定</a></li>
+    <li><a href="#i23">离线地图坐标与 GPS 坐标系不对应，需转换坐标系</a></li>
+    <li><a href="#i24">Mapsui 五个实测坑（WPF/Polygon/版本/TMS）</a></li>
+    <li><a href="#i25">V30.24+ 八连 bug：白底/Y倒/范围过小</a></li>
+    <li><a href="#i26">手写投影公式必踩纬度方向偏差</a></li>
+    <li><a href="#i27">30+ 诊断脚本的五轮迭代历程</a></li>
+    <li><a href="#i28">自带 SDK 不支持多线程，自实现 4 线程 wrapper（1~16 线程对比）</a></li>
+  </ol>
+</section>
+
+<h2 class="section-title A"><span class="badge">A</span>数据采集 · MediaSDK · exiftool（12 条）</h2>
+
+<article class="item section-A" id="i1">
+  <h3><span class="num">01</span>Insta360 X5 .insv 私有 trailer 流抽取 GPS/IMU</h3>
+  <div class="tags"><span class="tag">exiftool</span><span class="tag">trailer</span><span class="tag">GPS</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>Insta360 X5 的 GPS/加速度计/陀螺仪数据存在文件尾部一个 ~30–40MB 的私有 <code>trailer</code> 流里，<strong>不在标准 moov/inst MP4 树中</strong>。exiftool 默认会把这条流跳掉（warn: "Use ExtractEmbedded option to extract timed metadata from Insta360 trailer"），结果只看到两个 AVC/HVC 视频轨，没有 GPS。</dd>
+    <dt>方案</dt>
+    <dd>关键参数 <code>-ee</code>（ExtractEmbedded）必须加。大文件（≥100MB 或 ≥1min）走 <code>-ee -G1 -a -s -m</code>；小文件（类似 005，38MB）仍可加 <code>-api RequestAll=3</code>。
+<pre>ExifTool.exe -api largefilesupport -ee -G1 -a -s -m FILE.insv</pre>
+    </dd>
+    <dt>关键点</dt>
+    <dd>无 <code>-ee</code> 看不到 GPS；无 <code>-m</code> 走不到 per-frame 路径（被 20k sample cap 警告当成 fatal error 停掉）。</dd>
+  </dl>
+  <div class="outcome"><strong>实测：</strong>VID_006 加 <code>-ee -G1 -a -s -m</code> 跑出 169MB / 1.25M 行，4,003 GPS + 401,104 IMU + 413,094 TimeCode + 11,991 ExposureTime。</div>
+</article>
+
+<article class="item section-A" id="i2">
+  <h3><span class="num">02</span>exiftool 13.59 <code>-api RequestAll=3</code> 触发 perl memory bug</h3>
+  <div class="tags"><span class="tag">exiftool</span><span class="tag">bug</span><span class="tag">per-frame</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>exiftool 13.59 加 <code>-api RequestAll=3</code> 跑大 .insv（373MB 006）时 perl 内部 state 被搞坏，死在不同 line（Get32u, DUPL_TAG, QuickTimeStream.pl）都报 "Not an ARRAY/HASH reference" 或 "free unreferenced scalar"。16:07 偶然跑通一次（出 169MB，401k IMU），17:30+ 必崩。</dd>
+    <dt>方案</dt>
+    <dd>两个 flag 的角色容易混：
+      <ul>
+        <li><code>-m</code>（<code>--ignoreMinorErrors</code>）=<strong>per-frame 抽取的开关</strong>。没 <code>-m</code> 走不到 per-frame 路径。</li>
+        <li><code>-api RequestAll=3</code> = <strong>bug 触发器</strong>。RequestAll=2 不会。</li>
+      </ul>
+      <strong>修法</strong>：去掉 <code>-api RequestAll=3</code>，保留 <code>-m</code>：
+<pre>ExifTool.exe -api largefilesupport -ee -G1 -a -s -m FILE.insv   &lt;-- OK (5s 稳定 169MB)
+ExifTool.exe -api largefilesupport -api RequestAll=3 -ee -G1 -a -s -m FILE.insv   &lt;-- NOT OK</pre>
+    </dd>
+    <dt>关键点</dt>
+    <dd>看 Accel count 判断走的哪条路径：20,001 = 1Hz 标准；401k = per-frame。</dd>
+  </dl>
+  <div class="outcome"><strong>实测：</strong>推荐命令 5s 稳定出 169MB / 1.25M 行（与 16:07 lucky pass 等效）；RequestAll=3 路径 17:30+ 25% 概率崩。</div>
+</article>
+
+<article class="item section-A" id="i3">
+  <h3><span class="num">03</span>exiftool 间歇崩（0xC0000005 / exit 255 / 226 bytes）→ tmpfile + retry + Defender 排除</h3>
+  <div class="tags"><span class="tag">exiftool</span><span class="tag">稳定性</span><span class="tag">Defender</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>即便去掉 RequestAll=3，exiftool 13.59 仍 ~25% 概率崩（同族 perl memory bug）。症状包括 <code>0xC0000005</code>（STATUS_ACCESS_VIOLATION）、exit 255、stderr 沉默只写 226 bytes。</dd>
+    <dt>方案</dt>
+    <dd><code>run_exiftool_raw.m</code> 内置多层保护（2026-06-30 升级版）：
+      <ul>
+        <li><strong>tmpfile + retry + sanity</strong>：写临时文件，3 次重试 + 1KB sanity check。</li>
+        <li><strong>stderr 捕获</strong>：失败时把 perl 死在哪写到 <code>&lt;meta&gt;.err</code>。</li>
+        <li><strong>pre-warm 1MB</strong>：用 .NET FileStream 读头把 OS cache 暖起来。</li>
+        <li><strong>max_attempts 3 → 5</strong>（P(recover in ≤5) ≈ 76%）。</li>
+        <li><strong>pause 1 → 3 秒</strong>（让 OS cache 在 retry 间清掉）。</li>
+      </ul>
+      <strong>根因家族头号嫌疑</strong>：Windows Defender 实时扫 <code>.meta</code>/<code>.tmp</code> 写入过程中夺走句柄 → exiftool crash。<strong>用户必做</strong>：
+<pre>Add-MpPreference -ExclusionPath 'C:\i361'
+Add-MpPreference -ExclusionPath 'C:\matlabX5'
+Add-MpPreference -ExclusionPath 'S:\项目\手持单兵式铁路沿线巡检设备'</pre>
+    </dd>
+    <dt>关键点</dt>
+    <dd>P(per attempt) 实际 25% 而非 50%；3 retry 不够，需 5+。真正 fix 是 Defender 排除，不是 perl 本身。</dd>
+  </dl>
+  <div class="outcome"><strong>降级路径：</strong>若 5 次 + Defender 都失败，回退 exiftool 12.40（只能拿 Insta360 Parameters，无 per-sample）；或工程方案 PyPI <code>telemetry-parser</code>（56-byte record + 末尾 32-byte magic，完全 bypass exiftool）。</div>
+</article>
+
+<article class="item section-A" id="i4">
+  <h3><span class="num">04</span>QuickTime:CreateDate 无 <code>Z</code> 后缀但值是 UTC</h3>
+  <div class="tags"><span class="tag">exiftool</span><span class="tag">UTC</span><span class="tag">时间戳</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd><code>ExifTool.exe -s -s -s -QuickTime:CreateDate FILE.insv</code> 对 X5 输出形如 <code>2026:06:17 05:06:29</code>（无 <code>Z</code>），但 value <strong>是 UTC 不是 local</strong>。证据：同文件的 <code>FileCreateDate: 2026:06:17 13:06:29+08:00</code>，跟 QuickTime CreateDate 差 8h，正好 CST→UTC。</dd>
+    <dt>方案</dt>
+    <dd>不要用 <code>FileCreateDate</code> 减 8h 来"修正"。直接按 UTC parse：
+<pre>dt = datetime(s, 'InputFormat', 'yyyy:MM:dd HH:mm:ss', 'TimeZone', 'UTC');
+epoch = posixtime(dt);</pre>
+错误写法（带 <code>'Z'</code>）会 parse 失败，因为 <code>Z</code> 不在 <code>s</code> 中。</dd>
+    <dt>关键点</dt>
+    <dd>exiftool 对 QuickTime 类标签默认不打 <code>Z</code>（atom 内部就是 UTC ISO 字符串，无 timezone 概念），跟 <code>FileCreateDate</code>/<code>FileModifyDate</code>（文件系统）行为不同。任何 QuickTime 标签（<code>TrackCreateDate</code>、<code>MediaCreateDate</code>）都按 UTC parse。</dd>
+  </dl>
+  <div class="outcome"><strong>验证：</strong>VID_006 实测 QuickTime:CreateDate = 2026:06:17 05:06:29 → posixtime = <strong>1781672789</strong>（UTC）。</div>
+</article>
+
+<article class="item section-A" id="i5">
+  <h3><span class="num">05</span>.insv 分辨率检测：dual-fisheye → equirect 推算</h3>
+  <div class="tags"><span class="tag">MediaSDK</span><span class="tag">检测</span><span class="tag">stitch</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd><code>exiftool -s -s -s -ImageWidth -ImageHeight VID_006.insv</code> 返回 <code>3840\n3840</code>。但 MediaSDK stitch 出来的是 <code>7680x3840</code> equirect 全景。<strong>直接信 exiftool 的 ImageWidth 会导致抽帧输出错误分辨率</strong>。</dd>
+    <dt>方案</dt>
+    <dd><code>detect_insv_resolution.m</code> 的检测规则：
+      <ol>
+        <li>exiftool probe <code>-ImageWidth -ImageHeight</code></li>
+        <li>若 W == H（方形，单鱼眼）→ equirect = <code>2*W × H</code></li>
+        <li>否则按 W,H 直用</li>
+        <li>失败 fallback <code>[7680 3840]</code></li>
+      </ol>
+      根因：.insv 在 ISO BMFF 里是 dual-track（Track1 + Track2），每 track 是 3840x3840 的单鱼眼图，MediaSDK 把两鱼眼 blend 成 2:1 equirect，W 翻倍，H 不变。exiftool 不知道 stitch pipeline，只报 per-track raw 尺寸。
+    </dd>
+    <dt>关键点</dt>
+    <dd>任何要按 .insv "原始分辨率" 抽帧的场景（不指定 <code>-output_size</code> 或要 detect），都用 <code>detect_insv_resolution.m</code>。</dd>
+  </dl>
+  <div class="outcome"><strong>实测：</strong>VID_006 exiftool → 3840×3840，推算 → 7680×3840 ✓；MediaSDKTest <code>-output_size 7680x3840</code> → 400 jpgs，<code>imfinfo</code> 验 Width=7680 Height=3840 ✓。</div>
+</article>
+
+<article class="item section-A" id="i6">
+  <h3><span class="num">06</span>X5 1Hz timelapse 不变量（每视频帧 = 真实 1 秒）</h3>
+  <div class="tags"><span class="tag">时序</span><span class="tag">设备不变量</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>Insta360 X5 在 device 上设 "1 photo/sec" 时间轴模式时，拍出来的 .insv 视频里<strong>每 1 帧对应真实 1 秒</strong>。容器头的 fps 字段通常还是 24/30，但实际帧间隔由 device 写入的真实数据决定。容易把 video container fps（24/30）跟 device 拍帧率（1Hz）混了。</dd>
+    <dt>方案</dt>
+    <dd>整个时间轴 pipeline 都按这个不变量设计：
+      <ul>
+        <li><code>scripts/extract_jpgs.m:19</code> → <code>stitch_to_frames -frames -soft_decode</code>（无帧号）= 抽全帧 = 1 帧 1 秒</li>
+        <li><code>scripts/write_jpgs_exif.m:18</code> → <code>ts = video_start_epoch + (i - 1)</code></li>
+        <li><code>scripts/match_gps_pps.m:11</code> → <code>ts = video_start_epoch + (0:M-1)'</code>（1Hz 对齐）</li>
+        <li><code>scripts/detect_highlights.m:15</code> → <code>(ts(i) - 10, ts(i)]</code> past window（10s 窗口 = 过去 10 张 jpg = 真实 10 秒）</li>
+      </ul>
+      <strong>实际编码</strong>：device 1Hz 拍 N 张原始图，压成 30fps 视频（不是 1fps）。视频长度 = N/30 秒，但 N 帧 = N 张原始图，1:1 映射。006（.insv 13.33s @ 30fps）实际拍了 6 分 40 秒 1Hz 拿 400 张图。
+    </dd>
+    <dt>关键点</dt>
+    <dd>算 frame count 按 duration（N 秒 ≈ N 帧），不按 fps × duration。006 应该出 ≈ 13 张 jpg（按 1Hz timelapse），不是 400。</dd>
+  </dl>
+  <div class="outcome"><strong>校验：</strong><code>stitch_to_frames -frames 0</code> 抽第 1 帧，跟 video_start_epoch 对齐，误差应在 sub-second 内。</div>
+</article>
+
+<article class="item section-A" id="i7">
+  <h3><span class="num">07</span>video_start_epoch 必现算，不能复用旧值</h3>
+  <div class="tags"><span class="tag">UTC</span><span class="tag">回归</span><span class="tag">验证</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>VID_006.insv <code>video_start_epoch = 1781672789</code>（2026-06-17 05:06:29 UTC）。旧 plan/test 写的 <code>1781279189</code> 错了，<strong>off by 393600s = 4.55 天</strong>。错值不易发现：<code>resample_to_1hz</code> 用 <code>video_start_epoch + (0:N-1)</code> 算 jpg_ts_epoch，跟 raw_ts 匹配时 argmin 全 match 到第一个 raw sample，结果 400 行 _1f csv 都跟第一个 GPS 一样，看不出 bug。</dd>
+    <dt>方案</dt>
+    <dd>Self-test 配方（任何 .insv 都可）：
+<pre>% 1. 用 exiftool + datetime 算出 video_start_epoch
+% 2. 取 raw gps 的前几个 sample epoch
+% 3. 算 delta: 期望 ~0-10s (GPS 锁星延迟)
+% 4. 若 delta 异常大 (&gt;100s), 八成是 video_start_epoch 错了
+raw = posixtime(datetime('2026-06-17 05:06:36.6Z', ...
+    'InputFormat','yyyy-MM-dd HH:mm:ss.S''Z''','TimeZone','UTC'));
+delta = raw - 1781672789;
+fprintf('delta: %.1f s\n', delta);   % 期望 ~7.6</pre>
+    </dd>
+    <dt>关键点</dt>
+    <dd>写测试或做 resample 时，不要复用旧 plan 的 1781279189。现算（exiftool + datetime）验证。</dd>
+  </dl>
+  <div class="outcome"><strong>Why it matters：</strong>若 video_start_epoch 错 4.5 天，所有 jpg_ts 都 off 393600s，GPS/IMU 1Hz 匹配静默失效。</div>
+</article>
+
+<article class="item section-A" id="i8">
+  <h3><span class="num">08</span>IMU/GPS 时间对齐：mean_of_ends ±200s</h3>
+  <div class="tags"><span class="tag">IMU</span><span class="tag">GPS</span><span class="tag">对齐</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>GPS 是 UTC，IMU TimeCode 是 sensor-seconds-since-boot，trailer 头部<strong>没显式 offset</strong>（binary parser 能从 trailer 头拿到 boot timestamp，但 exiftool 文本 dump 拿不到）。需要一种仅用 exiftool 的对齐方法。</dd>
+    <dt>方案</dt>
+    <dd><code>insv_split.ps1</code> 用 <strong>mean_of_ends</strong> 方法估算 offset：
+<pre>gps_mid  = (gps_first_epoch + gps_last_epoch) / 2
+imu_mid  = (imu_first_timecode + imu_last_timecode) / 2
+offset   = gps_mid - imu_mid
+gps_utc  = imu_timecode + offset</pre>
+      <strong>假设</strong>：两股流的中位数对应同一时刻（录制在 IMU session 的中间附近）。Camera IMU 持续记录整个 session（开关机），GPS 只在录制期间（含前后 pad）有 fix。
+      <br><strong>误差界</strong>：±½ × min(gps_span, imu_span) / 2 ≈ ±half of GPS span（因为 GPS span 远小于 IMU span）。006 上 GPS span 6m40s，所以误差 ≤ ±200s = ±3.3min。
+    </dd>
+    <dt>关键点</dt>
+    <dd>用户确认 ±200s 精度暂时够用。改进方向：binary trailer parser 读 boot timestamp，或用 video frame PTS + QuickTime CreateDate 锚（两条都跟 mean_of_ends 不冲突，可 override <code>utc_offset</code>）。</dd>
+  </dl>
+  <div class="outcome"><strong>006 实测：</strong>offset = 1,778,314,012.285 s (~56.3 年 since 1970)；IMU 完整 UTC 范围 02:20:24Z - 07:59:29Z，跟实际相机 session 5.5h 吻合。</div>
+</article>
+
+<article class="item section-A" id="i9">
+  <h3><span class="num">09</span>GPSDateTime 混 .X / 无小数 + duplicate ts 微秒偏移</h3>
+  <div class="tags"><span class="tag">GPS</span><span class="tag">interp1</span><span class="tag">正则</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>X5 GPSDateTime 数据<strong>两种格式混在一起</strong>：
+      <ol>
+        <li>大多数行：<code>2026:06:17 05:06:36.6Z</code>（1 位小数）</li>
+        <li>偶发行：<code>2026:06:17 05:06:37Z</code>（无小数）</li>
+      </ol>
+      <code>gpx_filter.m</code> 用 <code>InputFormat='yyyy-MM-dd HH:mm:ss.S'</code> 严格要求 1 位小数，所以 416/4003 行 parse 失败 → NaN → <code>interp1</code> 报 "采样点必须为有限值"。
+      <br>第二层 bug：即便 pad 上 .0，仍有 34 个 duplicate ts（exiftool 1-decimal 精度 print 相同，实际相隔 ~200ms 但 lat 差 22cm）。<strong>不能 average</strong>（lat 是不同 sample 的物理测量，车在动），但 <code>interp1</code> 要 unique X → "采样点必须唯一"。
+    </dd>
+    <dt>方案</dt>
+    <dd>两层 fix：
+      <ul>
+        <li><strong>producer pad</strong>（<code>insv_split.ps1</code>）：<code>if ($iso -notmatch '\.\d+Z$') { $iso = $iso -replace 'Z$', '.0Z' }</code></li>
+        <li><strong>consumer 唯一化</strong>（<code>gpx_filter.m</code>）：用 <code>unique+accumarray</code> 给 dup 加 <code>1e-6*i</code> 秒偏移（保留独立 lat/lon/ele）</li>
+      </ul>
+    </dd>
+    <dt>关键点</dt>
+    <dd>数据 producer 是 X5 + exiftool，格式不可控。Consumer 必须容错。微秒偏移不破坏数据但打破 unique 约束。</dd>
+  </dl>
+  <div class="outcome"><strong>效果：</strong>两层 fix 后 4003 GPS 全部能 parse + interp1，34 个 duplicate ts 不丢物理信息。</div>
+</article>
+
+<article class="item section-A" id="i10">
+  <h3><span class="num">10</span>exiftool IMU 输出 1Hz，200Hz 需 binary parser</h3>
+  <div class="tags"><span class="tag">IMU</span><span class="tag">binary parser</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>exiftool 的 IMU 是 <strong>1Hz</strong>，不是 200Hz。中位 dt = 1.0000s（X5 硬件是 ~200Hz，但 exiftool 文本输出每 trailer group 只打 1 个样本）。13.35s clip 13.35×200 = 2,670 IMU 就够，20k 没问题；7min clip 会被 cap（≈85,600 → 20,000）。</dd>
+    <dt>方案</dt>
+    <dd>要拿 200Hz 全量必须用 <strong>binary trailer parser</strong>：
+      <ul>
+        <li>PyPI <code>telemetry-parser</code>（BenjaminHenriksson/insv-stitch 用的那个）</li>
+        <li>56-byte record 布局：<code>[ts:u64 μs][gx,gy,gz:f64 rad/s][ax,ay,az:f64 m/s²]</code></li>
+        <li>trailer 末尾 32-byte magic：<code>8db42d694ccc418790edff439fe026bf</code></li>
+      </ul>
+      完全 bypass exiftool，最稳（2-3 天工程量）。
+    </dd>
+    <dt>关键点</dt>
+    <dd><code>-m</code> 是 per-frame 抽取的开关（401k samples 才是 per-frame，20k 是 1Hz）。两者差 ~20×，不要混。</dd>
+  </dl>
+  <div class="outcome"><strong>何时触发：</strong>短 clip（≤20s）1Hz 够用；长 clip（≥1min）需要 binary parser，否则 IMU 时间分辨率太低。</div>
+</article>
+
+<article class="item section-A" id="i11">
+  <h3><span class="num">11</span>MediaSDK 公开 API 无 GPS，只能 exiftool</h3>
+  <div class="tags"><span class="tag">MediaSDK</span><span class="tag">API 调研</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>想用 MediaSDK 抽 .insv GPS 是死路一条。<code>grep -ri "GPS\|gpsData\|getMetadata\|getExtraInfo\|getGps\|getAcc\|getGyro"</code> 在 3 个公开头里命中：
+      <ul>
+        <li><code>ins_stitcher.h</code>：只有 <code>EnableCuda</code>、<code>SetImageProcessingAccelType</code> 等 stitch 参数</li>
+        <li><code>ins_realtime_stitcher.h</code>：有 <code>HandleGyroData(const std::vector&lt;GyroData&gt;&amp;)</code>，但这是<strong>实时摄像头</strong>接 USB 推 gyro，不是从 .insv 抽</li>
+        <li><code>ins_common.h</code>：<code>GyroData</code> struct（timestamp + ax/ay/az + gx/gy/gz），仍是 live camera 数据结构</li>
+      </ul>
+      <code>VideoStitcher</code> 内部确实解析 .insv trailer（不解析没法 stitch），但解析结果只用于内部 <code>FlowState</code> / <code>directionlock</code>，<strong>不外暴</strong>。<code>SetStabDataOutputPath</code> API 调成功但 0 字节。
+    </dd>
+    <dt>方案</dt>
+    <dd>.insv GPS/IMU 抽取只能：
+      <ol>
+        <li>exiftool 读 .insv trailer（13.59 撞 perl bug）</li>
+        <li>exiftool 读 .lrv（低清代理，256MB，偶尔行）</li>
+        <li>Insta360 Studio GUI 手导出 → GPX（每批 .insv 点 1 次）</li>
+        <li>C++ 直接解析 .insv trailer binary（telemetry-parser 方案，工程量大）</li>
+        <li>第三方 inSV 解析器（frosted, exif-asf）</li>
+      </ol>
+      SDK 抽帧没问题（走 <code>MediaSDKTest.exe</code>），但抽出来的 jpg 不带 EXIF，GPS 得自己写。
+    </dd>
+    <dt>关键点</dt>
+    <dd>任何想用 MediaSDK 抽 GPS 的尝试，先 grep 公开头确认有没有 API，没有就直接放弃走 exiftool。别花时间写 C++ 调 MediaSDK 内部（私有 API 改版本就崩）。</dd>
+  </dl>
+  <div class="outcome"><strong>决策：</strong>放弃 MediaSDK 路径，pipeline 已定型为 exiftool（抽 GPS/IMU）+ MediaSDKTest（抽 jpg）双工具组合。</div>
+</article>
+
+<article class="item section-A" id="i12">
+  <h3><span class="num">12</span>stitch_to_frames 崩 → MediaSDKTest.exe（vulkan+CPU）</h3>
+  <div class="tags"><span class="tag">MediaSDK</span><span class="tag">抽帧</span><span class="tag">CUDA</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>Insta360 MediaSDK 3.1.3 的官方 stitcher（<code>stitch_to_frames.exe</code> 自带 wrapper）在 NVIDIA 596.36 box 上崩（GL crash <code>0xC0000139</code> / <code>0xC0000005</code>）。之前结论是"本机永远 fail，需换机器或等新 driver"。</dd>
+    <dt>方案</dt>
+    <dd>同一份 MediaSDK 3.1.3 还带了一个<strong>官方 sample binary</strong> <code>MediaSDKTest.exe</code>，默认走 vulkan + CPU，<strong>不依赖 CUDA</strong>，0 崩。命令：
+<pre>"C:\...\MediaSDKTest.exe" ^
+    -inputs "X:\path\to\file.insv" ^
+    -image_sequence_dir "X:\out\frames" ^
+    -output_size 7680x3840 ^
+    -enable_soft_decode ^
+    -image_type jpg</pre>
+      可选：<code>-export_frame_index "0-30-60-..."</code>（1Hz timelapse 取子集）；<code>-disable_cuda</code>（已默认）；<code>-stitch_type template|optflow|dynamicstitch|aistitch</code>（默认 optflow，template 最快）。
+      <br><strong>DLL 依赖</strong>：需要把整个 bin 目录加到 PATH（vulkan / cublas / cufft / npp / opencv / MNN / exiv2 / MediaSDK / CameraSDK）。
+    </dd>
+    <dt>关键点</dt>
+    <dd>推翻旧结论 "stitcher 在本机永远 fail"。任何 .insv 抽帧任务直接 <code>extract_jpgs(insv, out_dir, opts, 0)</code> 不再卡 env。</dd>
+  </dl>
+  <div class="outcome"><strong>实测：</strong>006（13.35s @ 30fps 7680×3840）抽全帧 400 张 157s；抽 13 帧（1Hz 子集）14.4s；.lrv 5 帧 0.78s。8K 抽全帧慢（~0.4s/帧 CPU），抽 1Hz 子集用 <code>-export_frame_index</code> 提速。</div>
+</article>
+
+<h2 class="section-title B"><span class="badge">B</span>PowerShell 解析层（3 条）</h2>
+
+<article class="item section-B" id="i13">
+  <h3><span class="num">13</span>insv_split.ps1 GPSDateTime 正则锚定 Z</h3>
+  <div class="tags"><span class="tag">PowerShell</span><span class="tag">正则</span><span class="tag">解析</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd><code>GPSDateTime</code> 行（<code>2026:06:17 05:06:36.6Z</code>）用 <code>\[Insta360\]\s+GPSDateTime\s+:\s+(.+?)\s*$</code> 这种 non-greedy 写法，<code>$Matches[1]</code> 在 <code>2026:06:17 05:06:36.6Z</code> 上只匹配到 <code>2</code>（regex engine 取最短能让 <code>\s*$</code> 成立的串）。结果所有 Time 全是 1 字符，<code>Sort-Object</code> 排序完全乱。</dd>
+    <dt>方案</dt>
+    <dd><strong>正确写法是锚定 <code>Z</code></strong>：
+<pre>\[Insta360\]\s+GPSDateTime\s+:\s+(.+)Z\s*$
+$timeStr = $Matches[1] + 'Z'   # reattach Z</pre>
+      用 greedy <code>(.+)</code> + 行尾 <code>Z\s*$</code> 锚定，避免 non-greedy 短路。
+    </dd>
+    <dt>关键点</dt>
+    <dd>解析行尾有固定 marker 的字段，<strong>优先锚定 marker</strong>，不要用 non-greedy <code>.+?</code> + 通配符结尾。</dd>
+  </dl>
+  <div class="outcome"><strong>效果：</strong>4003 行 GPSDateTime 全部正确解析为完整时间字符串（如 <code>2026:06:17 05:06:36.6Z</code>）。</div>
+</article>
+
+<article class="item section-B" id="i14">
+  <h3><span class="num">14</span>GPS 时间排序：用秒 since epoch 而非 lex sort</h3>
+  <div class="tags"><span class="tag">PowerShell</span><span class="tag">排序</span><span class="tag">时间戳</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>GPS 时间<strong>不能 lex sort</strong>。同一秒同时存在 <code>05:13:16.9Z</code>（1 位小数）和 <code>05:13:16Z</code>（无小数）两种格式，<code>.</code> ASCII 0x2E < <code>Z</code> 0x5A，lex 上 <code>05:13:16.9Z &lt; 05:13:16Z</code>，但时间上反过来。<code>Sort-Object</code> 按字符串排会乱。</dd>
+    <dt>方案</dt>
+    <dd>用 <strong>[double] SortKey</strong>（秒 since 1970-01-01 UTC）排序，<code>insv_split.ps1</code> 里的 <code>Get-GpsSortKey</code>：
+<pre>$epoch = [datetime]::SpecifyKind(
+    [datetime]::ParseExact(
+        $Matches[1]+'Z',
+        'yyyy:MM:dd HH:mm:ss.fffZ',
+        [Globalization.CultureInfo]::InvariantCulture),
+    'UTC').ToUniversalTime()
+$epoch.Subtract([datetime]'1970-01-01').TotalSeconds</pre>
+      对所有 GPS 行先 pad <code>.fff</code>（缺位补 0）再算 epoch，按 double 排序。
+    </dd>
+    <dt>关键点</dt>
+    <dd>涉及时间排序的场景（GPS/IMU/日志），<strong>永远用 epoch 数值</strong>，不用字符串 lex sort。</dd>
+  </dl>
+  <div class="outcome"><strong>旧 parser bug（已被取代）：</strong>4 个 <code>elseif</code> 分支各自 <code>if (-not $pts.Contains($lastTs))</code> 创建新 entry，但因 (1) Time lex sort 错乱，(2) <code>(\d+)</code> 抓秒只取整数丢小数（58.50 → 58.00 → 36.71611 跟 36.71625 的区别），输出 CSV 的 lat/lon 全卡在 <code>36.7161111, 116.9375000</code>。</div>
+</article>
+
+<article class="item section-B" id="i15">
+  <h3><span class="num">15</span>PowerShell 5.1 不支持 PS6+ <code>?.</code> 运算符</h3>
+  <div class="tags"><span class="tag">PowerShell</span><span class="tag">兼容性</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd><code>run_split_006.ps1</code> line 22 用了 PS6+ 的 null-conditional <code>?.</code>，默认 <code>powershell.exe 5.1</code> 直接 parser error。但 <code>MediaSDKTest.exe</code> 调用需要 PowerShell 5.1（Windows 自带），且部分工作站升级不到 PS7。</dd>
+    <dt>方案</dt>
+    <dd><strong>改用 if/else 显式 null check</strong>：
+<pre># NOT OK (PS6+ only)
+$obj?.Field
+
+# OK (5.1 compatible)
+if ($null -ne $obj) {
+    $obj.Field
+}</pre>
+      任何要跨 PS5.1/PS7 跑的脚本，<strong>禁用</strong> <code>?.</code> / <code>??</code> / <code>?[]</code> 等 PS6+ 运算符。
+    </dd>
+    <dt>关键点</dt>
+    <dd>解析层跨工具链脚本默认按 PS5.1 写。引入新语法前先 <code>$PSVersionTable.PSVersion</code> 检查。</dd>
+  </dl>
+  <div class="outcome"><strong>触发条件：</strong>任何 <code>powershell.exe</code>（Windows 默认 5.1）调用的 <code>.ps1</code> 脚本。</div>
+</article>
+
+<h2 class="section-title C"><span class="badge">C</span>MATLAB 工程坑（5 条）</h2>
+
+<article class="item section-C" id="i16">
+  <h3><span class="num">16</span>MATLAB fopen 写 binary 0xFF 0xD8 被吃（UTF-16 误判）</h3>
+  <div class="tags"><span class="tag">MATLAB</span><span class="tag">binary IO</span><span class="tag">.NET</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>写 8 bytes <code>uint8([255 216 1 2 3 4 255 217])</code>（JPEG SOI/EOI）到一个 .bin 文件，用 MATLAB <code>fopen(file, 'wb')</code> 或 <code>'w','n'</code> 或 <code>'w','ieee-le','US-ASCII'</code>，<strong>文件 on disk 都是 24+ bytes</strong>，<code>0xFF 0xD8</code> 被替换成 <code>EF A3 B5 EF BF BD</code>（UTF-8 编码的 U+FFFD）。
+      <br><strong>根因</strong>：MATLAB 的 fopen 在 Windows 上把字节流当 UTF-16 处理，<code>0xFF 0xD8</code> 被识别为 UTF-16 high surrogate pair（无效上下文），替换成 UTF-8 replacement character。
+    </dd>
+    <dt>方案</dt>
+    <dd>完全 bypass fopen，用 .NET <code>System.IO.FileStream</code> + <code>BinaryWriter</code>：
+<pre>fs = System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+bw = System.IO.BinaryWriter(fs);
+bw.Write(uint8_array);
+bw.Close();</pre>
+      同样读用 <code>BinaryReader.ReadBytes(N)</code>（注意 <code>ReadBytes</code> 返回 <code>System.Byte[]</code>，MATLAB 自动 cast 成 <code>uint8</code> 但有时要显式 <code>uint8(...)</code>）。
+    </dd>
+    <dt>关键点</dt>
+    <dd>这两个坑叠加在 <code>pack_jpgs_bin</code>（写 .bin）+ <code>extract_jpgs</code>（写 .jpg）上。<strong>不解决等于把 JPEG 全毁掉</strong>。任何写 raw binary（jpg / png / protobuf / 自定义格式）的 MATLAB 代码都走 .NET。</dd>
+  </dl>
+  <div class="outcome"><strong>教训：</strong>新写 MATLAB 写 binary file 的代码，<strong>直接</strong>用 .NET，别试 fopen 的 mode 组合。</div>
+</article>
+
+<article class="item section-C" id="i17">
+  <h3><span class="num">17</span>MATLAB fread <code>'uint64'</code> 只前进 4 字节</h3>
+  <div class="tags"><span class="tag">MATLAB</span><span class="tag">binary IO</span><span class="tag">typecast</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd><code>fread(fid, 1, 'uint64')</code> 实际只读 4 字节，像是被当 uint32 处理。读 1 uint64 后 <code>ftell(fid)</code> = 4，不是 8。解析 binary header（如 .bin 的 offset table）时悄无声息错位。</dd>
+    <dt>方案</dt>
+    <dd>不用 fread 的 uint64 precision。改成读 2 个 uint32 然后 <code>typecast</code>：
+<pre>lo = fread(fid, 1, 'uint32');
+hi = fread(fid, 1, 'uint32');
+val = typecast(uint32([lo hi]), 'uint64');</pre>
+      或者直接 <code>fread(fid, Inf, '*uint8')</code> 读全部字节，自己 typecast。
+    </dd>
+    <dt>关键点</dt>
+    <dd>任何 binary header 解析，先用 <code>ftell</code> 验证前进字节数符合预期，再继续。MATLAB fread 的 precision 字符串行为在不同版本差异大。</dd>
+  </dl>
+  <div class="outcome"><strong>替代方案：</strong>彻底用 .NET <code>BinaryReader</code> 读 uint64（避免 fread 坑），统一 binary IO 栈。</div>
+</article>
+
+<article class="item section-C" id="i18">
+  <h3><span class="num">18</span>.NET BinaryReader.ReadBytes 大文件（&gt;10MB）OOM</h3>
+  <div class="tags"><span class="tag">MATLAB</span><span class="tag">.NET interop</span><span class="tag">内存</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd><code>System.IO.BinaryReader.ReadBytes(int32(fs.Length))</code> 把 18MB jpg slurp 成 byte[] 时抛 "外部组件发生异常。源: dotnetcli"（即 MATLAB-.NET bridge 崩，不是真异常）。同样模式在 <code>File.ReadAllBytes(path)</code> 也有问题。
+      <br><strong>触发</strong>：单次 ReadBytes/ReadAllBytes 返回的 byte[] > 10MB（经验值，也可能 8MB 就崩，看版本）。8K 7680×3840 jpg 典型 11–18MB，<strong>全踩</strong>。
+      <br><strong>Why</strong>：MATLAB R2026a .NET interop marshal 走 fixed buffer，大 byte[] 超过 buffer 上限就 wrap 成 "External component exception"。不是真异常，<strong>没法 try/catch 救</strong>。
+    </dd>
+    <dt>方案</dt>
+    <dd>不要 slurp 整个文件。用 <strong>1MB buffer streaming</strong>：
+<pre>buf = uint8(zeros(1024*1024, 1));  % 1MB buffer
+fs = System.IO.FileStream(fn, 'Open', 'Read');
+remaining = fs.Length;
+while remaining &gt; 0
+    chunk = int32(min(remaining, int64(numel(buf))));
+    n = fs.Read(buf, 0, chunk);
+    if n &lt;= 0, break; end
+    out.Write(buf(1:int32(n)));   % buf slice + write
+    remaining = remaining - int64(n);
+end
+fs.Close();</pre>
+    </dd>
+    <dt>关键点</dt>
+    <dd>任何从 pipeline 处理 &gt;10MB 文件的 .NET binary read 都要 streaming。适用 <code>pack_jpgs_bin</code>（写 bin）、<code>extract_pano_at_gps</code>（读 jpg）等。永远不要 <code>ReadAllBytes(path)</code> 或 <code>ReadBytes(fs.Length)</code> 大文件。</dd>
+  </dl>
+  <div class="outcome"><strong>坑区分：</strong>跟 [[matlab-fopen-windows-binary-pitfalls]] 是不同坑（fopen 是 text-mode mangling，.NET 是 bridge buffer overflow），都得绕。</div>
+</article>
+
+<article class="item section-C" id="i19">
+  <h3><span class="num">19</span>uigetfile MultiSelect 只接受 <code>'on'</code>/<code>'off'</code> 字符串</h3>
+  <div class="tags"><span class="tag">MATLAB</span><span class="tag">GUI</span><span class="tag">uigetfile</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>调用 <code>uigetfile(..., 'MultiSelect', mat2str(opts.MultiSelect))</code>，当 <code>opts.MultiSelect=false</code> 时报：
+<pre>错误使用 uigetputfile_helper/parsePropertyValuePairs (第 209 行)
+'MultiSelect' 的有效值为 'on' 和 'off'。</pre>
+      <code>mat2str(false)</code> → <code>'false'</code>，但 uigetfile 只认 <code>'on'</code> / <code>'off'</code>。R2026a 没改这 API。
+    </dd>
+    <dt>方案</dt>
+    <dd>写 helper <code>ternary_onoff.m</code>：
+<pre>function s = ternary_onoff(b)
+    if b, s = 'on'; else, s = 'off'; end
+end</pre>
+      调用：<code>'MultiSelect', ternary_onoff(opts.MultiSelect)</code>。
+      <br><strong>替代方案对比</strong>：
+      <ul>
+        <li><code>char(string(b))</code> — R2026a <code>string(false)="false"</code>，同样拒</li>
+        <li><code>num2str(b)</code> — <code>num2str(true)='1'</code>，拒</li>
+        <li><code>if/else</code> inline — OK 但丑</li>
+      </ul>
+    </dd>
+    <dt>关键点</dt>
+    <dd>任何把 logical 当字符串拼到 <code>uigetfile</code>/<code>uiputfile</code>/<code>uigetdir</code> 的 <code>MultiSelect</code> / <code>DefaultName</code> 等 on/off 字段的地方，默认用 <code>ternary_onoff</code>。</dd>
+  </dl>
+  <div class="outcome"><strong>验证：</strong><code>ternary_onoff(false)</code> → <code>'off'</code> ✓；uigetfile 不再报 valid values 错。</div>
+</article>
+
+<article class="item section-C" id="i20">
+  <h3><span class="num">20</span>GUI 集成必改 <code>prompt_idempotent.m</code> 静默 questdlg</h3>
+  <div class="tags"><span class="tag">MATLAB</span><span class="tag">GUI 集成</span><span class="tag">questdlg</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>第二次跑同一 .insv → <code>insv_to_project</code> 默认会弹 <code>questdlg [Skip / Overwrite / Cancel]</code>，在 batch / 嵌入式 GUI 会卡死或被吞，导致集成按钮"按下去没反应"。</dd>
+    <dt>方案</dt>
+    <dd>改 <code>scripts/prompt_idempotent.m</code> 第 11 行 <code>choice = questdlg(...)</code> → <code>choice = 'overwrite'</code>：
+<pre>% 强制覆盖, 不弹对话框
+choice = 'overwrite';
+
+% 或: 静默判断
+choice = 'overwrite';   % 默认
+% choice = 'skip';      % 永远跳过, GUI 启动时若想全量重跑再改</pre>
+      调用方拿到的 <code>stats.skipped</code> 会始终 false，但二次跑会覆盖旧产物（5.8 min）。
+    </dd>
+    <dt>关键点</dt>
+    <dd>GUI 集成必改 <code>prompt_idempotent.m</code>，否则 questdlg 阻塞。<strong>完整集成模式</strong>（6 步）：
+      <ol>
+        <li>调 <code>insv_to_project(insv_path, ...)</code>（<strong>不要</strong>用 <code>insv_to_project_gui</code>，会抢 uigetfile）</li>
+        <li>必传 <code>ProjectRoot</code> 让 GUI 控制输出位置</li>
+        <li>设 <code>Verbose=false</code> 避免内建 fprintf 污染</li>
+        <li>用 <code>stats.skipped</code> 区分"幂等命中"vs"新跑完"</li>
+        <li>锁按钮（<code>Enable off→on</code>）防重入</li>
+        <li>改 <code>prompt_idempotent.m</code>（同上）</li>
+      </ol>
+    </dd>
+  </dl>
+  <div class="outcome"><strong>完整样板：</strong><code>C:\i361\docs\INTEGRATION.md</code> §2。异步版用 <code>parfeval(@insv_to_project, 1, insv_path, ...)</code> + <code>afterEach</code>。</div>
+</article>
+
+<h2 class="section-title D"><span class="badge">D</span>V30 GUI 演进（2 条）</h2>
+
+<article class="item section-D" id="i21">
+  <h3><span class="num">21</span>V30 uifigure 标题栏高度让位问题（R2026a）</h3>
+  <div class="tags"><span class="tag">MATLAB</span><span class="tag">App Designer</span><span class="tag">uifigure</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>V30.4 → V30.7 一天内迭代 4 个版本解决 uifigure 标题栏让位：
+      <ul>
+        <li><strong>V30.4</strong>：<code>UIH=1020</code>，<code>E=70</code>，新增 <code>TitleBarH=40</code> 偏移所有区域避开标题栏</li>
+        <li><strong>V30.5</strong>：修 figure Position 越界 <code>[1 1 1920 1060]</code> → <code>[1 1 1920 1020]</code> + startup diagnostic</li>
+        <li><strong>V30.6</strong>：R2026a uifigure <code>InnerPosition=Position</code> <strong>无 figure title bar 让位</strong>，<code>TitleBarH</code> 40→15</li>
+        <li><strong>V30.7</strong>：<code>TitleBarH</code> 15→0（完全贴顶）</li>
+      </ul>
+      调优历史 40→15→0 的教训：uifigure 默认 <code>TitleBarH=0</code>，前面的偏移全是从错误前提推导出来的。
+    </dd>
+    <dt>方案</dt>
+    <dd>V30.8 敲定 <strong>maximized 模式</strong>（<code>Resize='on'</code> + <code>WindowState='maximized'</code>），<strong>完全规避</strong>标题栏/任务栏/DWM/多屏偏移的所有复杂计算：
+<pre>fig = uifigure('WindowState', 'maximized', 'Resize', 'on');
+% ScreenSize = [1 1 1920 1080]
+% UIW=1920, UIH=1020, TitleBarH=0 (maximized 模式下都是 0)</pre>
+      后续所有 uifigure 项目通用方案。
+    </dd>
+    <dt>关键点</dt>
+    <dd><code>uifigure</code> 没有 <code>AutoResize</code> 属性（与 legacy <code>figure</code> 不同）。<code>InnerPosition</code> 在 R2026a 跟 <code>Position</code> 一致，不预留 figure title bar。</dd>
+  </dl>
+  <div class="outcome"><strong>V30.14 实测：</strong>[V30] ScreenSize = [1 1 1920 1080]，UIW=1920, UIH=1020, TitleBarH=0，5 区域全部铺满零留白。</div>
+</article>
+
+<article class="item section-D" id="i22">
+  <h3><span class="num">22</span>V30 WindowState='maximized' + 5 区域基线 + loadProject 统一入口</h3>
+  <div class="tags"><span class="tag">MATLAB</span><span class="tag">App Designer</span><span class="tag">架构</span></div>
+  <dl>
+    <dt>难点</dt>
+    <dd>V30 一天内迭代 13 版（V30.1 → V30.13）敲定 UI 基线，V30.14 实现真实数据加载。挑战：
+      <ol>
+        <li><strong>UI 不变量</strong>：5 区域（A 图像/B 地图/C 帧跳转/D 工程/E 信息栏）+ maximized 模式 + panel 去 Title/Border（不显示区域名）</li>
+        <li><strong>回调签名坑</strong>：要访问 <code>obj</code> 属性时必须 <code>(obj, ~)</code>，否则只能取 ~</li>
+        <li><strong>集成 pipeline</strong>：GUI 构造函数里 <code>addpath('C:\i361\scripts', '-begin')</code>（<code>-begin</code> 优先避免 v30 自带脚本冲突）；<code>onNewProj</code> 调 <code>insv_to_project_gui()</code> → 11 步 pipeline → stats → 调 <code>loadProject</code></li>
+        <li><strong>V30.14 loadProject 统一入口</strong>：onNewProj/onOpenProj 都调 <code>loadProject</code>；8 业务状态 + <code>refreshCurrentFrame</code>；3 个新 helper 脚本（read_jpgx_bin / plot_gpx / refresh_state）</li>
+      </ol>
+    </dd>
+    <dt>方案</dt>
+    <dd><strong>UI 基线（不要再改）</strong>：
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr><th style="text-align:left; padding:4px 6px; border-bottom:1px solid var(--border)">区域</th><th style="text-align:left; padding:4px 6px; border-bottom:1px solid var(--border)">位置</th><th style="text-align:left; padding:4px 6px; border-bottom:1px solid var(--border)">尺寸</th><th style="text-align:left; padding:4px 6px; border-bottom:1px solid var(--border)">内容</th></tr>
+        <tr><td style="padding:3px 6px;">A</td><td style="padding:3px 6px;">(1, 1)</td><td style="padding:3px 6px;">1600×900</td><td style="padding:3px 6px;">imshow 当前帧</td></tr>
+        <tr><td style="padding:3px 6px;">B</td><td style="padding:3px 6px;">(1620, 1)</td><td style="padding:3px 6px;">300×600</td><td style="padding:3px 6px;">plot GPS 轨迹 + 红点</td></tr>
+        <tr><td style="padding:3px 6px;">C</td><td style="padding:3px 6px;">(1620, 610)</td><td style="padding:3px 6px;">300×140</td><td style="padding:3px 6px;">2×2：倍率/自动/上一帧/下一帧</td></tr>
+        <tr><td style="padding:3px 6px;">D</td><td style="padding:3px 6px;">(1620, 760)</td><td style="padding:3px 6px;">300×140</td><td style="padding:3px 6px;">2×3：视图类 3 + 工程类 3</td></tr>
+        <tr><td style="padding:3px 6px;">E</td><td style="padding:3px 6px;">(1, 910)</td><td style="padding:3px 6px;">1920×70</td><td style="padding:3px 6px;">6 段：帧号/时间/经纬度/输入/跳转</td></tr>
+      </table>
+      <br><strong>loadProject 统一入口</strong>（V30.14）：
+<pre>function loadProject(obj, prj_path)
+    % 1. parse .prj JSON → stats
+    % 2. set 8 业务状态 (curFrameIdx, gpxData, imuData, ...)
+    % 3. 调 refreshCurrentFrame 刷 A/B/E
+    % 4. 启用 C/D 区按钮
+end</pre>
+      <br><strong>用户偏好（拍板）</strong>：
+      <ul>
+        <li>不显示"区域名"（V30.9）："调整各个区域，并不需要单独表明这个什么区域"</li>
+        <li>完全贴顶零留白（V30.7）</li>
+        <li>回调签名 <code>(obj, ~)</code>（要读 obj 属性时）</li>
+      </ul>
+    </dd>
+    <dt>关键点</dt>
+    <dd>改 UI 前先看 <code>v30-ui-finalized</code> 标注的"不要再改的事"。改 pipeline 前先看 <code>INTEGRATION.md</code> 保证不影响集成样板。跨窗口知识共建/隔离（<code>README.md</code> 协议）。</dd>
+  </dl>
+  <div class="outcome"><strong>V30.14 状态：</strong>D 区 BtnNewProj / BtnOpenProj / A 区 imshow / B 区 plot / E 区 4 信息 label 全部真实运行；C 区 4 元素 + D 区 3 元素 + E 区 EditFieldJump 留 V30.15+ 接真实功能。</div>
+</article>
+
+<h2 class="section-title E"><span class="badge">E</span>地图/轨迹/底图套合 — V30.15~V30.36+ 五轮迭代（5 条）</h2>
+
+<article class="item section-E" id="i23">
+  <h3><span class="num">23</span>离线地图坐标与 GPS 坐标系不对应，需转换坐标系</h3>
+  <div class="tags"><span class="tag">坐标系</span><span class="tag">wgs84</span><span class="tag">gcj02</span><span class="tag">gps</span><span class="tag">高德偏移</span></div>
+  <dl>
+    <dt>现象</dt>
+    <dd>同一段 GPS 轨迹，在微图（WeMapGIS）/ 高德 / 腾讯底图上**明显偏移** 500~1000m，在 OSM/Google 上才"看着对"。V30.15~V30.20 期间反复尝试，仍按 WGS84 直接画点 → 国内底图永远对不上；用户报告"在铁路上跑，轨迹却偏到马路另一边"。</dd>
+    <dt>根因</dt>
+    <dd>中国境内的电子地图（高德、腾讯、百度、微图等）法定使用 <strong>GCJ02（火星坐标）</strong>，对真实 WGS84 经纬度施加伪随机加密偏移（振幅 0.001~0.01°）；OSM/Google/ArcGIS 才是真 WGS84。GPS 设备输出的原始经纬度是 WGS84，<strong>直接画在 GCJ02 底图上必错位</strong>。</dd>
+    <dt>尝试</dt>
+    <dd>
+      <ol>
+        <li>V30.16 直接 <code>plot(lon, lat)</code> → 错位 800m。</li>
+        <li>V30.18 怀疑是 mbtiles 切片坐标问题 → 改 YAxis.TMS → 错位方向变但仍在 600m。</li>
+        <li>V30.20 写 <code>wgs84_to_gcj02.m</code>（标准算法 a=6378245, ee=0.00669342162296594323）→ 转换后轨迹<strong>精确落在底图铁路上</strong>。</li>
+      </ol>
+    </dd>
+    <dt>方案</dt>
+    <dd><code>wgs84_to_gcj02.m</code>：先判断是否在中国境内（粗略经纬度矩形 73.66~135.05, 3.86~53.55），在境内才转换；境外 GPS 保持 WGS84 不动。画点前先过此函数。再加 <code>test_v30_36_wgs84_vs_gcj02.m</code> 用京津、京沪段已知坐标做端到端回归。</dd>
+    <dt>踩坑</dt>
+    <dd>GCJ02 算法是公开常数但有几种近似实现，浮点精度差 ~1m；统一用 ICSM 公式（不用百度 / 搜狗变体），并对转换前后做对称 sanity check（往返误差应 < 1e-7°）。</dd>
+  </dl>
+  <div class="outcome"><strong>结论：</strong>任何 X5 项目代码**画轨迹前必须先过 WGS84→GCJ02 转换函数**（境内才转，境外不转），否则用户在国内任何底图上看到的都是错位轨迹。这是用户反馈"一开始的方法没对应上"的根因。</div>
+</article>
+
+<article class="item section-E" id="i24">
+  <h3><span class="num">24</span>Mapsui 五个实测坑：从 WPF 控件切到手动 RenderToBitmapStream</h3>
+  <div class="tags"><span class="tag">mapsui</span><span class="tag">brutile</span><span class="tag">wpf</span><span class="tag">csharp</span><span class="tag">tms</span></div>
+  <dl>
+    <dt>现象</dt>
+    <dd>V30.21~V30.30 期间尝试用 Mapsui 5.x 渲染底图+轨迹，五个独立问题反复造成"底图空白"、"整图白屏"、"标记消失"、"加载崩"。每个问题都得反编译 IL 才能定位。</dd>
+    <dt>五个坑</dt>
+    <dd>
+      <ol>
+        <li><strong>WPF <code>MapControl</code> 的 TileLayer 异步 fetch 不触发</strong> → 底图永远空白。反编译 <code>MapControl.Refresh</code> IL 证实它只刷 graphics、不触发 tile fetch。修法：改用 <code>MapRenderer.RenderToBitmapStream(map, 1f, RenderFormat.Png, maxIterations:6)</code> 手动渲染到 WPF Image。</li>
+        <li><strong><code>Polygon</code> 渲染导致整图空白</strong>（仅 Outline 无 Fill 时尤甚）。KML/边界改用 <code>LineString</code> 画闭合线，效果一样且能渲染。</li>
+        <li><strong><code>SymbolStyle.SymbolScale &lt; 1</code> 渲染退化</strong>（标记消失/变白）。标记大小一律 <code>SymbolScale &gt;= 1</code>；<code>DefaultWidth/DefaultHeight</code> 是 Mapsui 静态属性（全局默认 32px），不能在对象初始化器里改。</li>
+        <li><strong>版本必须匹配</strong>：Mapsui 5.x 依赖 BruTile 6.0.0；<code>BruTile.MbTiles</code> 必须同为 6.0.0，否则 <code>TypeLoadException: get_Attribution</code>。查传递依赖：<code>dotnet list package --include-transitive</code>。</li>
+        <li><strong>国内微图 mbtiles 多为 TMS 方案</strong>（tile_row 0 在南）：<code>GlobalSphericalMercator(YAxis.TMS, 12, 18, "weMap")</code> 的 <code>YAxis</code> 参数必须选 TMS（OSM 是 0 在北）。</li>
+      </ol>
+    </dd>
+    <dt>诊断方法论</dt>
+    <dd>
+      <ul>
+        <li>反编译 <code>MethodBody.GetILAsByteArray()</code> 逐字节看 <code>call</code> 目标</li>
+        <li>headless 对照组：<code>RenderToBitmapStream</code> 绕过 UI，快速区分"数据问题 vs 控件问题"</li>
+        <li>逐 feature 二分：单个叠加要素都成功、组合失败 → 锁死具体 feature</li>
+        <li>版本冲突：<code>dotnet list package --include-transitive</code></li>
+      </ul>
+    </dd>
+    <dt>方案</dt>
+    <dd>V30.30+ 统一改用 <code>MapRenderer.RenderToBitmapStream</code> + <code>LineString</code> + <code>SymbolScale&gt;=1</code> + Mapsui 5.x + BruTile 6.0.0 + <code>YAxis.TMS</code>。这套组合终于让底图+轨迹正确套合。</dd>
+  </dl>
+  <div class="outcome"><strong>结论：</strong>Mapsui 是个功能强大但坑很多的库；遇到任何"底图空白"先查这五项。修复完用户验收："轨迹终于和铁路对上了"。</div>
+</article>
+
+<article class="item section-E" id="i25">
+  <h3><span class="num">25</span>V30.24+ 八连 bug：从 char() 解析到 obj.mapAxes.XLim 点索引</h3>
+  <div class="tags"><span class="tag">v30</span><span class="tag">matlab</span><span class="tag">classdef</span><span class="tag">patch</span><span class="tag">axes</span></div>
+  <dl>
+    <dt>背景</dt>
+    <dd>V30.23→V30.24+ 的"打开离线地图"按钮 patch 引入 8 个新 bug（不是 1 个），每个 bug 都需要单独修。完整诊断会话 2026-08-25 凌晨进行（<code>v30-bugfix-round2-session-20260825_041620.md</code>）。</dd>
+    <dt>八个 bug</dt>
+    <dd>
+      <ol>
+        <li><strong>Bug 1</strong>：<code>lblMapStatus.Text</code> 行 305/306 的 <code>char()</code> 把 <code>figure</code> 函数名当字符串解析（编码问题）。改 hex 编码解决。</li>
+        <li><strong>Bug 2</strong>：<code>createRegionC/D/E</code> 三段代码被原 patch 误删（patch diff 没考虑新增方法）。从 V30.23 备份恢复。</li>
+        <li><strong>Bug 3</strong>：<code>refreshCurrentFrame</code> 悬空引用 <code>bmapLineHandle</code> 等（变量已被 patch 改名）。改为调用 <code>obj.refreshOfflineMap()</code>。</li>
+        <li><strong>Bug 4</strong>：<strong>离线地图白色背景 + 轨迹消失</strong>（高频 <code>imshow</code> 全量重绘）。改用 <code>set(XData/YData)</code> 部分更新 + lock <code>XLim/YLim</code>。</li>
+        <li><strong>Bug 5</strong>：<strong>底图上下颠倒</strong>（<code>imshow</code> 默认 YDir='reverse'）。行 526 <code>YData</code> 改为 <code>[36.7383 36.6504]</code>（北→南反序传入）。</li>
+        <li><strong>Bug 6</strong>：<strong>离线地图太小无法缩放</strong>。默认 <code>XLim/YLim = 轨迹 bounds + 5% pad</code>，加 zoom/pan 回调。</li>
+        <li><strong>Bug 7</strong>：<strong><code>onSpeedChange</code> 方法缺失</strong>（timer 重建时回调引用未定义）。新增方法（destroy→create timer pattern）。</li>
+        <li><strong>Bug 8</strong>：<strong><code>obj.mapAxes.XLim = ...</code> 点索引报错</strong>。根因：行 56 <code>mapAxes double</code> 类型强转导致 axes 对象被当成数值句柄 → 点索引失败。方案 A（推荐）：删 <code>double</code> 类型标注，与 <code>mapImageHandle</code> 一致。</li>
+      </ol>
+    </dd>
+    <dt>方案</dt>
+    <dd>Bug 1-7 已全部修完并部署；Bug 8 走方案 A（删 1 行类型）后即生效，需 MATLAB 重启（<code>clear classes</code>）让 classdef 重新加载。验证：自动播放时 GPS 红点逐帧跟随 + 改速度下拉不报 <code>onSpeedChange</code> + 检查 <code>matlab_v30.log</code> 无新错误。</dd>
+    <dt>教训</dt>
+    <dd>
+      <ul>
+        <li>patch 引入的 bug 经常不是 1 个，要按"行为→报错→行号→classdef→git diff"五步逐项排查。</li>
+        <li>MATLAB classdef property 类型一旦声明强类型，赋值时 MATLAB 默默转换，运行时才报点索引错误 —— <strong>不声明类型最安全</strong>。</li>
+        <li><code>imshow</code> + <code>YDir='normal'</code> 必须 <code>YData</code> 反序传入（北纬更大）；不反序则底图永远颠倒。</li>
+      </ul>
+    </dd>
+  </dl>
+  <div class="outcome"><strong>结论：</strong>V30.24+ 离线地图按钮从"点开报错"演进到"轨迹与铁路精确对齐"，全程跨 8 个 bug + 5 轮 patch。这是用户口中"经过多种尝试，对应上了"的核心故事。</div>
+</article>
+
+<article class="item section-E" id="i26">
+  <h3><span class="num">26</span>手写 Web Mercator 投影：纬度方向偏差与 sin/cos 近似坑</h3>
+  <div class="tags"><span class="tag">mercator</span><span class="tag">projection</span><span class="tag">tile-math</span><span class="tag">anti-pattern</span></div>
+  <dl>
+    <dt>现象</dt>
+    <dd>V30.16~V30.22 期间，自己手写了 <code>TileToLat</code> / <code>LonLatToTile</code> / <code>MercY</code> / <code>latRange = mercYRange * cosLat</code> 一套"够用就行的"投影。结果是经度方向精确对齐，<strong>纬度方向永远偏</strong>，偏移在低纬度 ~50m / 高纬度 ~500m，正好和 GCJ02 偏移叠加 → 完全不可调试。</dd>
+    <dt>根因</dt>
+    <dd>Web Mercator 经度线性、纬度非线性：<code>y = R · ln(tan(π/4 + φ/2))</code>。手写时三段独立近似：①瓦片编号换算 ②视口范围计算 ③叠加层投影映射。任何一处不一致就错位，且**集中在纬度方向**。同时 <code>cos(lat)</code> 把矩形投影回地理范围时也是近似（地球是椭球而非球），低纬度 ok 高纬度差几百米。</dd>
+    <dt>失败案例</dt>
+    <dd>
+      <ul>
+        <li><code>verify_tile_math.py</code>：用 <code>python -m pyproj</code> 对照发现手写投影纬度差 0.003°（约 330m @ 纬度 38°）。</li>
+        <li><code>compare_basemaps.py</code>：同一 GPS 点在自写投影 vs OSM 切片上差 ~5 像素（zoom 18 下 ~5m），在 zoom 14 下放大到 ~80m。</li>
+        <li><code>diag_y_flip_compare.m</code>：证明 YData 反序 vs YDir='normal' 必须二选一，混用必颠倒。</li>
+      </ul>
+    </dd>
+    <dt>方案</dt>
+    <dd>
+      <ol>
+        <li><strong>短痛</strong>：直接用成熟库（Mapsui 5.x / maptiler / leaflet / mapbox），库不让手写投影所以不会错。</li>
+        <li><strong>若必须手写</strong>：用 EPSG.io / PROJ 公式 + 椭球参数 WGS84（a=6378137, f=1/298.257223563），不用球面近似。</li>
+        <li><strong>回归测试</strong>：<code>verify_tile_math.py</code> 用已知地理点（天安门 116.3974,39.9092）做端到端对照，<strong>不允许 &gt; 1m 误差</strong>。</li>
+      </ol>
+    </dd>
+  </dl>
+  <div class="outcome"><strong>结论：</strong>地图投影是典型的"看着简单实际极难"的领域，<strong>永远用库</strong>。手写任何 Web Mercator 都得跑三组对照（已知点 / 库实现 / 真实切片），成本比直接用库高 5 倍。</div>
+</article>
+
+<article class="item section-E" id="i27">
+  <h3><span class="num">27</span>30+ 诊断脚本的五轮迭代：从猜到证据链</h3>
+  <div class="tags"><span class="tag">diagnostic</span><span class="tag">iteration</span><span class="tag">scripts</span><span class="tag">evidence</span></div>
+  <dl>
+    <dt>背景</dt>
+    <dd><code>C:\last\last\scripts\</code> 积累了 30+ 个地图/轨迹/底图相关的诊断脚本，每个对应一轮"假设→证据→新假设"循环。这是用户口中"多种尝试"的具体呈现。</dd>
+    <dt>五轮迭代</dt>
+    <dd>
+      <ol>
+        <li><strong>第 1 轮（V30.16 前后）— 切投影猜 Y 方向</strong>：<code>diag_y_flip.m</code> / <code>diag_y_flip_compare.m</code> → 发现 YData 反序必须显式做。</li>
+        <li><strong>第 2 轮（V30.18 前后）— 切 YAxis 猜切片约定</strong>：<code>diag_tms_vs_osm.m</code> → 微图是 TMS（0 在南），与 OSM 相反。</li>
+        <li><strong>第 3 轮（V30.20 前后）— WGS84→GCJ02 偏移假设</strong>：<code>wgs84_to_gcj02.m</code> + <code>test_v30_36_wgs84_vs_gcj02.m</code> + <code>compare_basemaps.py</code> → 验证国内底图偏 500~1000m 的真因是 GCJ02 加密。</li>
+        <li><strong>第 4 轮（V30.24~V30.30 前后）— Mapsui 黑盒 bug</strong>：<code>render_basemap.m</code>（headless 对照组）+ <code>offlineMap.m</code>（绕过 WPF 控件）+ <code>probe_mbtiles.m</code>（检查 SQLite 切片数据）→ 定位到 WPF MapControl 不 fetch tile。</li>
+        <li><strong>第 5 轮（V30.30~V30.36+）— 误差收口</strong>：<code>zoom_match.py</code>（不同 zoom 误差放大） + <code>verify_tile_math.py</code>（库实现对照） + <code>diag_offset_log.txt</code>（迭代日志） → 误差收敛到 &lt; 1m，轨迹终于和铁路对齐。</li>
+      </ol>
+    </dd>
+    <dt>方法论沉淀</dt>
+    <dd>
+      <ul>
+        <li><strong>诊断脚本要带时间戳</strong>（<code>diag_y_flip_compare_20260824.m</code>），便于回溯思路变化。</li>
+        <li><strong>每轮假设单独一个脚本</strong>（不混在 pipeline 里），<code>scripts/</code> 目录本身就是一份"我们试过什么"的清单。</li>
+        <li><strong>对照三组</strong>：自写实现 vs 库实现 vs 真实切片数据，三者一致才认。</li>
+        <li><strong>headless 先行</strong>：UI 控件往往掩盖真因，先用 <code>RenderToBitmapStream</code> 这类无 UI 路径验证。</li>
+        <li><strong>offset_log 不删</strong>：每次"修好了"留 <code>offset_log_20260918.txt</code>，后来 V30.36 重现 bug 时直接对照历史 log。</li>
+      </ul>
+    </dd>
+    <dt>最终态</dt>
+    <dd>V30.36+ 用户验收："在铁路上跑，轨迹就是这条线"。</dd>
+  </dl>
+  <div class="outcome"><strong>结论：</strong>"对应上了"不是一句结论，是 30+ 脚本、5 轮假设、跨 14 个版本迭代出来的可执行证据链。</div>
+</article>
+
+<article class="item section-E" id="i28">
+  <h3><span class="num">28</span>自带 SDK 不支持多线程，自实现 4 线程 wrapper（1~16 线程对比实测）</h3>
+  <div class="tags"><span class="tag">parallelstitcher</span><span class="tag">cpp</span><span class="tag">sdk</span><span class="tag">multithreading</span><span class="tag">bench</span><span class="tag">v60</span></div>
+  <dl>
+    <dt>现象</dt>
+    <dd>Insta360 MediaSDK 3.1.3 自带的官方 stitcher（<code>MediaSDKTest.exe</code>）是<strong>单进程串行</strong>的：对一个 .insv 抽 N 帧，内部一帧一帧串行调用 MediaSDK.dll，400 帧需要 ~200 秒。同一份 SDK 资源已经在 GPU 上，但单线程限制让 GPU 大量空闲。</dd>
+    <dt>根因</dt>
+    <dd>MediaSDK 是 C++ 动态库，<strong>没有公开的多帧并发 API</strong>：进程内多线程调用同一 MediaSDK handle 互斥（内部 mutex 串行化），多进程调用同一 GPU 上下文会触发 OpenCL/Vulkan 资源争抢。所以"在 V30 里开 8 个线程调 SDK"看似并发，实际内部还是排队。</dd>
+    <dt>方案</dt>
+    <dd>写一个 <strong>C++ 多进程 wrapper</strong> <code>ParallelStitcher.exe</code>：
+      <ul>
+        <li>每个 worker 是独立 OS 进程，<strong>各自加载 MediaSDK.dll、独立 GPU context</strong>，绕开 SDK 内部 mutex。</li>
+        <li>主进程按帧区间（<code>FramesPerChunk=100</code>）切分任务，pipe stdout 收集各 worker 完成帧。</li>
+        <li><strong>PATH 注入</strong>：子进程 PATH 必须包含 SDK 目录（含 MNN.dll / OpenCL.dll），否则 <code>LoadLibrary:126</code> 失败。</li>
+        <li><strong>stale-jpg 清理</strong>：启动前 <code>rm chunk_*/*.jpg</code>，否则 init race（worker 0s 完成，MediaSDK 还在 async-init）。</li>
+        <li>orchestrator（<code>V30.Stitcher.Stitcher</code>）做 batch retry（最多 3 次）+ manifest resume + GPU watchdog。</li>
+      </ul>
+    </dd>
+    <dt>线程数对比（1~16 全跑）</dt>
+    <dd><code>V30.Stitcher.Tools.Bench</code> 20-run 基准测试，399 帧 / 7680×3840 / NVIDIA 上：
+      <ul>
+        <li><strong>1 线程</strong>：~200s（baseline，等同旧 MediaSDKTest）</li>
+        <li><strong>2 线程</strong>：~140s</li>
+        <li><strong>4 线程</strong>：<strong>~72s（2.78× speedup，20/20 success）⭐ 最优</strong></li>
+        <li><strong>6 线程</strong>：~95s（开始 GPU 争抢，下降）</li>
+        <li><strong>8 线程</strong>：~680s（GPU contention 700× 退化，<code>StitchOptions.Validate()</code> 拒绝）</li>
+        <li><strong>12/16 线程</strong>：同样被 Validate 拒绝（&gt;4 全禁），bench 不跑</li>
+      </ul>
+    </dd>
+    <dt>关键约束</dt>
+    <dd>
+      <ul>
+        <li><code>Threads ∈ [1, 4]</code>：8 线程触发 GPU 争抢，单帧耗时从 ~180ms 退化到 ~125s（700× 慢）。</li>
+        <li>JPG mode only：H265 mode 在 dtor 里阻塞 200s 刷编码器，未暴露。</li>
+        <li><code>Process.ExitCode == 0</code> 不可信：MediaSDK 会 <code>ExitProcess(0)</code> 假成功。判定标准：stdout 完整 + 所有 chunk 帧完成。</li>
+      </ul>
+    </dd>
+    <dt>验证</dt>
+    <dd><code>dotnet run --project src/V30.Stitcher.Tools.Bench -c Release -- --runs 20 --threads 4</code> 实测：mean=72.0s ± 0.27s，CV 0.38%，20/20 successes。79 个 unit test 通过，1 个 E2E skip。</dd>
+  </dl>
+  <div class="outcome"><strong>结论：</strong>SDK 没自带多线程 → 自己写 C++ wrapper 把"单进程串行"拆成"多进程并行 + 独立 GPU context" → 实测 <strong>4 线程是最优甜点</strong>（再高 GPU 争抢，再低 CPU 空闲）。这条经验直接决定了 V30-60 release pkg 的 Stitcher 形态。</div>
+</article>
+
+</body>
+</html>

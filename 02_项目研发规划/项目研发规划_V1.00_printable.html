@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>项目研发规划 V2.10 (MD 版)</title>
+<style>
+@page { size: A4; margin: 18mm 15mm; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; color: #0f172a; line-height: 1.7; max-width: 1000px; margin: 0 auto; padding: 24px; font-size: 12px; }
+h1 { font-size: 20px; text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 8px; margin: 16px 0 12px; }
+h2 { font-size: 16px; color: #0284c7; border-left: 4px solid #0ea5e9; padding-left: 10px; margin: 18px 0 8px; }
+h3 { font-size: 13px; color: #0ea5e9; margin: 14px 0 6px; }
+h2.ai { color: #7c3aed; border-left-color: #a855f7; }
+h3.ai { color: #7c3aed; }
+p { margin: 4px 0 8px; }
+strong { color: #0c4a6e; }
+strong.ai { color: #7c3aed; }
+table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 11px; }
+th, td { border: 1px solid #cbd5e1; padding: 4px 8px; text-align: left; }
+th { background: #f0f9ff; color: #0c4a6e; font-weight: 600; }
+code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 11px; }
+pre { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 11px; overflow-x: auto; }
+blockquote { border-left: 4px solid #0ea5e9; background: #f0f9ff; padding: 8px 12px; margin: 10px 0; color: #0c4a6e; }
+blockquote.ai { border-left-color: #a855f7; background: #f3e8ff; }
+ul, ol { margin: 4px 0 10px 22px; }
+li { margin: 2px 0; }
+hr { border: none; border-top: 1px solid #cbd5e1; margin: 18px 0; }
+tr.ai td { background: #f3e8ff; }
+</style>
+</head>
+<body>
+<h1>车载式铁路周边环境巡检设备 — 12 个月研发实施规划 V2.10</h1>
+
+<p><strong>编制日期</strong>：2026-09-08<br>
+<strong>项目启动</strong>：2026-10-08（周四）<br>
+<strong>项目周期</strong>：12 个月（10月启动 → 次年 9 月验收）<br>
+<strong>研发节奏</strong>：前 6 月硬件样机 + 后 6 月上车联调（含上位机完善 + AI 异常识别）<br>
+<strong>项目预算</strong>：约 152.3 万元（含赵庆尧 20K×14 薪 + 14 薪 + 法定福利 + 分层采购硬件 + AI 训练预算）</p>
+
+<hr>
+
+<h2>一、研发团队配置</h2>
+
+<table>
+<thead>
+<tr><th>角色</th><th>人员</th><th>背景要求</th><th>核心职责</th><th>薪资</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>技术总负责</strong></td><td>赵庆尧（已就位）</td><td>武大测绘本科 / 11 年 / SLAM + 车载三维扫描仪</td><td>硬件架构 / PCB / 嵌入式 / SLAM / 项目管理</td><td><strong>20,000 × 14 薪</strong></td></tr>
+<tr><td><strong>嵌入式开发</strong></td><td>待招（11-15 到岗）</td><td><strong>武大测绘 / 5 年经验 / 男 / 研究生</strong></td><td>STM32 固件 / Linux 驱动 / 雷达/相机/IMU 采集</td><td><strong>25,000 × 14 薪</strong></td></tr>
+<tr><td><strong>PC 端开发</strong></td><td>待招（11-15 到岗）</td><td><strong>武大遥感 / 2 年 / 男 / 研究生 / AI 全栈</strong></td><td>Qt/ROS2 上位机 + <strong class="ai">AI 异常识别（多任务）</strong></td><td><strong>18,000 × 14 薪</strong></td></tr>
+</tbody>
+</table>
+
+<p><strong>月度人力总成本</strong>：约 <strong>63,000 元/月</strong>（赵庆尧 20K + 嵌入式 25K + PC 端 18K）</p>
+
+<h3>招聘节奏（11-15 死线倒推）</h3>
+<ul>
+<li>W1（10-8 ~ 10-14）：发布 JD（武大就业网/Boss/猎聘/校友群/猎头）</li>
+<li>W2-W3（10-15 ~ 10-28）：简历筛选 + 初试</li>
+<li>W4-W5（10-29 ~ 11-11）：现场面试 + 发放 offer</li>
+<li><strong>11-15：2 岗全部到岗 ✅</strong></li>
+</ul>
+
+<hr>
+
+<h2>二、12 个月甘特图（10月 → 次年 9 月）</h2>
+
+<pre>
+月份  10  11  12  1   2   3   4   5   6   7   8   9
+      ──────────────────────────────────────────────
+P0  招 招 详 投
+P1              ★M5  ★M6 ★M7
+P2                      装  ★M8 ★M9
+P3                                  ★M10 ★M11 ★M12
+🟣 AI 异常识别（贯穿）：M2 预研 → M3 demo → M4 预训练 → M5-7 采集 → M9 V1.0 → M11 V2.0 → M12 验收
+
+P0 = Phase 0 准备+设计（M1-4）
+P1 = Phase 1 硬件样机（M5-7）
+P2 = Phase 2 联调准备（M7-9）
+P3 = Phase 3 上车联调+上位机完善+AI 多任务异常识别（M10-12）
+</pre>
+
+<h3>14 个关键里程碑（含 4 个 AI 里程碑）</h3>
+
+<table>
+<thead>
+<tr><th>#</th><th>里程碑</th><th>完成时间</th><th>交付物</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>A1</strong></td><td>项目启动 + 招聘发布</td><td>2026-10-08</td><td>启动会议 + JD 5 渠道</td></tr>
+<tr><td><strong>A2</strong></td><td>★ 团队就位</td><td><strong>2026-11-15</strong></td><td>嵌入式 + PC 端到岗</td></tr>
+<tr><td><strong>A3</strong></td><td>硬件设计冻结</td><td>2027-01-15</td><td>原理图 + PCB + 外壳结构图</td></tr>
+<tr><td><strong>A4</strong></td><td>PCB 回板 + 焊接</td><td>2027-02 中</td><td>STM32 启动 + 单测</td></tr>
+<tr><td><strong>A5</strong></td><td>★ 硬件样机 V1 完成</td><td>2027-04-15</td><td>XT32+IMU+相机+Orin NX+PCB 联调</td></tr>
+<tr><td><strong>A6</strong></td><td>装车完成</td><td>2027-05 中</td><td>实车装配 + 首次路测</td></tr>
+<tr><td><strong>A7</strong></td><td>联调 + 上位机 V1</td><td>2027-06 末</td><td>完整上位机 + 数据流打通</td></tr>
+<tr class="ai"><td><strong>A7-AI</strong></td><td>★ AI V1.0</td><td>2027-07 中</td><td>YOLOv8 微调 mAP≥0.65 + TensorRT 部署</td></tr>
+<tr><td><strong>A8</strong></td><td>多场景实测</td><td>2027-08 中</td><td>白天/夜间/雨天/多路况</td></tr>
+<tr class="ai"><td><strong>A8-AI</strong></td><td>★ AI 数据扩展</td><td>2027-08 中</td><td>数据采集 3000 张 + V1 微调</td></tr>
+<tr><td><strong>A9</strong></td><td>迭代优化</td><td>2027-09 上</td><td>V1.1 数据精度达标</td></tr>
+<tr class="ai"><td><strong>A9-AI</strong></td><td>★ AI V2.0 微调</td><td>2027-09 上</td><td>mAP@0.5 ≥0.75（3 类）</td></tr>
+<tr><td><strong>A10</strong></td><td>★ 验收交付</td><td>2027-09-30</td><td>客户验收签字 + 量产包</td></tr>
+<tr class="ai"><td><strong>A10-AI</strong></td><td>★ AI 验收（含 V2.0 多任务）</td><td>2027-09-30</td><td>实时告警 + mAP ≥0.75</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>三、12 个月分阶段任务</h2>
+
+<h3>🔵 Phase 0：准备+设计期（Month 1-4，10月-1月）</h3>
+
+<h4>Month 1（2026-10-08 ~ 2026-11-07）：启动+招聘</h4>
+<ul>
+<li>10-8：项目启动会议 + 招聘 JD 发布</li>
+<li>10-15：XT32/Orin NX/IMU/相机批量询价</li>
+<li>10-29：简历筛选 + 初试</li>
+<li>10-30：与铁路局沟通测试线路 + 测试许可</li>
+<li>★A1 需求冻结 + 《需求规格说明书 V1.0》</li>
+</ul>
+
+<h4>Month 2（2026-11-08 ~ 2026-12-07）：团队就位 + 需求细化</h4>
+<ul>
+<li><strong>11-15：★A2 嵌入式 + PC 端到岗</strong></li>
+<li>11-20：硬件原理图初版</li>
+<li>11-25：PCB Layout 启动</li>
+<li>开发环境搭建（Ubuntu 22.04 + ROS2 Humble）</li>
+<li>Orin NX 采购下单</li>
+<li class="ai">🤖 <strong>AI 预研</strong>：YOLOv8/Detectron2 框架评估 + 公开数据集调研</li>
+</ul>
+
+<h4>Month 3（2026-12-08 ~ 2027-01-07）：详细设计 + 采购下单</h4>
+<ul>
+<li>★A3 硬件设计冻结</li>
+<li>嘉立创 PCB 投板（10 片沉金）</li>
+<li>外壳结构图设计（CNC 骨架+分体 v1）</li>
+<li>关键器件下单（XT32/IMU/相机/UMD982/蘑菇头）</li>
+<li class="ai">🤖 <strong>AI 基础 demo</strong>：YOLOv8x 公开权重推理 + TensorRT 转换 + Orin NX 部署</li>
+</ul>
+
+<h4>Month 4（2027-01-08 ~ 2027-02-07）：PCB 回板 + 焊接 + 单元测试</h4>
+<ul>
+<li>PCB 回板 + 元器件焊接</li>
+<li>STM32 最小系统调试</li>
+<li>PCB 各模块单元测试</li>
+<li>外壳 v1 CNC 下单</li>
+<li>★A4 PCB 回板 + 焊接完成</li>
+<li class="ai">🤖 <strong>AI 公开数据集预训练</strong>（COCO/铁路场景数据集）+ <strong>CVAT 标注工具部署</strong></li>
+</ul>
+
+<h3>🟢 Phase 1：硬件样机期（Month 5-7，2-4月）</h3>
+
+<h4>Month 5（2027-02-08 ~ 2027-03-07）：传感器调试 + 外壳 v1 集成</h4>
+<ul>
+<li>XT32 ROS2 驱动（百兆网 + GPS 同步）</li>
+<li>IMU SPI 驱动（1000Hz）</li>
+<li>4 相机 USB3.0/GigE 驱动</li>
+<li>PCB 板 PPS/PTP 时间同步调试</li>
+<li>外壳 v1 收货 + 整机装配</li>
+<li>锂电池 UPS 集成（24V/10Ah LiFePO4）</li>
+<li class="ai">🤖 <strong>AI 实验室 demo + 数据采集客户端开发</strong>（Qt 一键导出）</li>
+</ul>
+
+<h4>Month 6（2027-03-08 ~ 2027-04-07）：整机联调 + SLAM 仿真</h4>
+<ul>
+<li>Orin NX 安装 Ubuntu 22.04 + ROS2 Humble</li>
+<li>2×1TB SSD + 2×8TB HDD 挂载</li>
+<li>★A5 五模块联调：点云 + 图像 + IMU 三路同时输出</li>
+<li>FAST-LIO2 集成（XT32 + IMU 仿真）</li>
+<li>点云去畸变（IMU 辅助）</li>
+<li>PC 端基础：实时显示点云 + 图像 + IMU 波形</li>
+<li class="ai">🤖 <strong>AI 数据采集 500 张</strong>（实验室模拟场景）+ <strong>推理集成 Orin NX</strong></li>
+</ul>
+
+<h4>Month 7（2027-04-08 ~ 2027-05-07）：硬件样机完成 + 装车准备</h4>
+<ul>
+<li>★A5 硬件样机 V1 完成评审（实验室 1h）</li>
+<li>外壳 v1 升级（基于实验室反馈）</li>
+<li>装车方案设计</li>
+<li>PC 端 V0.5：完整数据流</li>
+<li>标定工具</li>
+<li>铁路局装车许可获取</li>
+<li class="ai">🤖 <strong>AI 现场数据采集 200/天</strong>（装车前后持续采集）+ <strong>框架集成 PC 端 V0.5</strong></li>
+</ul>
+
+<h3>🟡 Phase 2：联调准备期（Month 7-9，4-7月）</h3>
+
+<h4>Month 8（2027-05-08 ~ 2027-06-07）：装车完成 + 首次路测</h4>
+<ul>
+<li>实车装配 + 调试</li>
+<li><strong>★A6 首次路测（白天 50km/h）</strong></li>
+<li>PC 端 V0.8：增加数据后处理模块</li>
+<li>YOLOv8 目标检测集成</li>
+<li>振动测试</li>
+<li>外壳 v2 升级（装车反馈）</li>
+<li class="ai">🤖 <strong>AI 数据采集累计 1500 张</strong> + <strong>CVAT 标注启动</strong></li>
+</ul>
+
+<h4>Month 9（2026-06-08 ~ 2027-07-07）：联调+上位机 V1</h4>
+<ul>
+<li><strong>★A7 联调 + 上位机 V1 完成</strong></li>
+<li>白天/夜间多场景测试</li>
+<li>点云精度优化</li>
+<li>PC 端 V1.0：录制+回放+导出+标注</li>
+<li>Bug 集中修复</li>
+<li class="ai">🤖 <strong>★A7-AI V1.0</strong>（YOLOv8 微调 + TensorRT 部署 + 推理 &lt;30ms）+ <strong>数据标注累计 2000 张</strong></li>
+</ul>
+
+<h3>🟠 Phase 3：上车联调+上位机完善期（Month 10-12，7-9月）</h3>
+
+<h4>Month 10（2027-07-08 ~ 2027-08-07）：路测 + 上位机完善</h4>
+<ul>
+<li>雨天/夜间/多路况验证</li>
+<li>PC 端 V1.1：增加离线分析功能</li>
+<li>外壳 v3 升级（IP65 验证）</li>
+<li>高低温测试（-20℃~60℃）</li>
+<li>锂电池续航实测</li>
+<li class="ai">🤖 <strong>★A8-AI 数据采集累计 3000 张</strong> + <strong>V1 微调</strong>（新增施工/周边变化类）</li>
+</ul>
+
+<h4>Month 11（2027-08-08 ~ 2027-09-07）：多场景实测</h4>
+<ul>
+<li><strong>★A8 多场景实测</strong>（白天/夜间/雨/雾/隧道）</li>
+<li>PC 端 V1.2：性能优化 + 大数据量处理</li>
+<li>外壳 v4 升级（最终版）</li>
+<li>长时间运行 ≥4h 稳定性测试</li>
+<li>数据质量评估报告</li>
+<li class="ai">🤖 <strong>★A9-AI V2 微调</strong>（5000 张精标 + 3 类异常 + mAP@0.5 ≥0.75）</li>
+</ul>
+
+<h4>Month 12（2027-09-08 ~ 2027-09-30）：迭代 + 🔴 验收交付</h4>
+<ul>
+<li><strong>★A9 迭代 V1.1</strong>（基于实测数据）</li>
+<li>PC 端 V1.3：用户反馈优化</li>
+<li><strong>★A10 客户验收签字</strong></li>
+<li>文档完善（用户手册 + 维护手册）</li>
+<li>量产资料整理（图纸/BOM/固件/文档）</li>
+<li>项目总结报告</li>
+<li class="ai">🤖 <strong>★A10-AI V2.0 多任务异常识别验收</strong>（3 类 + 实时告警集成）</li>
+<li class="ai">🤖 <strong>AI 异常实时告警集成进 PC 端 V1.3</strong>（延迟 &lt;500ms）</li>
+</ul>
+
+<hr>
+
+<h2>四、硬件分层采购策略</h2>
+
+<p><strong>核心原则</strong>：核心 2 份 + 外壳 4 次迭代 + 配件 2 份</p>
+
+<table>
+<thead>
+<tr><th>类别</th><th>部件</th><th class="num">单价(元)</th><th class="num">份数</th><th class="num">小计(元)</th><th>采购逻辑</th></tr>
+</thead>
+<tbody>
+<tr style="background: #dbeafe;"><td colspan="6"><strong>A. 核心传感器（2 份）</strong></td></tr>
+<tr><td></td><td>激光雷达 XT32</td><td class="num">18,000</td><td class="num">2</td><td class="num">36,000</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>IMU ADIS16477-3</td><td class="num">4,500</td><td class="num">2</td><td class="num">9,000</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>定位 UMD982</td><td class="num">340</td><td class="num">2</td><td class="num">680</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>蘑菇头天线</td><td class="num">260</td><td class="num">2</td><td class="num">520</td><td>正样 + 备件</td></tr>
+<tr style="background: #d1fae5; font-weight: 700;"><td colspan="4">A 小计</td><td class="num">46,200</td><td>关键路径备份</td></tr>
+<tr style="background: #dbeafe;"><td colspan="6"><strong>B. 计算平台+存储（2 份）</strong></td></tr>
+<tr><td></td><td>Orin NX 16GB</td><td class="num">8,000</td><td class="num">2</td><td class="num">16,000</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>存储 2×1TB SSD + 2×8TB HDD</td><td class="num">3,900</td><td class="num">2</td><td class="num">7,800</td><td>正样 + 备件</td></tr>
+<tr><td></td><td>锂电池 24V/10Ah</td><td class="num">2,000</td><td class="num">2</td><td class="num">4,000</td><td>正样 + 备件</td></tr>
+<tr style="background: #d1fae5; font-weight: 700;"><td colspan="4">B 小计</td><td class="num">27,800</td><td></td></tr>
+<tr style="background: #dbeafe;"><td colspan="6"><strong>C. 相机（2 份）</strong></td></tr>
+<tr><td></td><td>全局快门 1000元×4</td><td class="num">4,000</td><td class="num">2</td><td class="num">8,000</td><td>正样 4 个 + 备件 4 个</td></tr>
+<tr style="background: #d1fae5; font-weight: 700;"><td colspan="4">C 小计</td><td class="num">8,000</td><td></td></tr>
+<tr style="background: #dbeafe;"><td colspan="6"><strong>D. 外壳（4 次迭代）</strong></td></tr>
+<tr><td></td><td>CNC 骨架+分体 v1</td><td class="num">6,000</td><td class="num">1</td><td class="num">6,000</td><td>初版装机</td></tr>
+<tr><td></td><td>CNC 升级 v2</td><td class="num">6,000</td><td class="num">1</td><td class="num">6,000</td><td>实验室反馈</td></tr>
+<tr><td></td><td>CNC 升级 v3</td><td class="num">6,000</td><td class="num">1</td><td class="num">6,000</td><td>装车反馈（IP65 强化）</td></tr>
+<tr><td></td><td>CNC 升级 v4（最终）</td><td class="num">6,000</td><td class="num">1</td><td class="num">6,000</td><td>实测反馈最终版</td></tr>
+<tr style="background: #d1fae5; font-weight: 700;"><td colspan="4">D 小计</td><td class="num">24,000</td><td>v1→v4 逐步升级</td></tr>
+<tr style="background: #dbeafe;"><td colspan="6"><strong>E. 配件（2 份）</strong></td></tr>
+<tr><td></td><td>线缆/连接器/PCB/电源</td><td class="num">9,065</td><td class="num">2</td><td class="num">18,130</td><td>正样 + 备件</td></tr>
+<tr style="background: #d1fae5; font-weight: 700;"><td colspan="4">E 小计</td><td class="num">18,130</td><td></td></tr>
+<tr style="background: #d1fae5; font-weight: 700; font-size: 14px;"><td colspan="4">硬件总计（A+B+C+D+E）</td><td class="num">124,130</td><td>约 12.4 万元</td></tr>
+</tbody>
+</table>
+
+<p><strong>对比原 4 倍统一采购方案</strong>：56,325 × 4 = 225,300 元 → 新方案 124,130 元，<strong>节省 101,170 元（44.9%）</strong></p>
+
+<hr>
+
+<h2 class="ai">五、AI 异常识别系统（上位机核心模块）</h2>
+
+<h3 class="ai">5.1 模块定位</h3>
+<blockquote class="ai">
+PC 端上位机新增 AI 异常识别能力，覆盖 <strong class="ai">3 类铁路周边环境异常</strong>，从 Month 2 起贯穿 11 个月（M2→M12），是项目核心交付之一。
+</blockquote>
+
+<h3 class="ai">5.2 核心指标</h3>
+<table>
+<thead><tr><th>指标</th><th>目标值</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>多任务类别</td><td><strong>3 类</strong></td><td>异物入侵 / 周边环境变化 / 施工作业</td></tr>
+<tr><td>推理硬件</td><td>Orin NX 100 TOPS</td><td>1024 核 Ampere + TensorRT FP16</td></tr>
+<tr><td>训练数据</td><td>5000 张精标</td><td>预训练 + 现场微调</td></tr>
+<tr><td>验收指标</td><td><strong>mAP@0.5 ≥ 0.75</strong></td><td>行业经验值</td></tr>
+<tr><td>实时告警</td><td>&lt; 500ms</td><td>Qt 上位机弹窗 + 声光 + 日志</td></tr>
+<tr><td>推理速度</td><td>&lt; 30ms / 帧</td><td>TensorRT 优化后</td></tr>
+</tbody>
+</table>
+
+<h3 class="ai">5.3 AI 架构与数据流</h3>
+<pre>[4 路相机 + LiDAR] → ROS2 话题
+        ↓
+[图像预处理] Orin NX 实时解码（640×640@30fps）
+        ↓
+[YOLOv8x 检测] TensorRT FP16 推理（&lt;30ms / 帧）
+        ↓
+[多任务输出] 异物 / 周边变化 / 施工 类别 + 置信度
+        ↓
+[实时告警] Qt 上位机弹窗 + 声光 + 日志（延迟 &lt;500ms）
+        ↓
+[数据回灌] 触发录像 + 标注工具 CVAT 闭环</pre>
+
+<h3 class="ai">5.4 多任务定义</h3>
+<table>
+<thead><tr><th>#</th><th>类别</th><th>典型目标</th><th>判定标准</th><th>告警等级</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong class="ai">异物入侵</strong></td><td>落石 / 行人 / 车辆 / 牲畜 / 抛洒物</td><td>距轨道中心 ≤10m</td><td>🔴 紧急</td></tr>
+<tr><td>2</td><td><strong class="ai">周边环境变化</strong></td><td>新建筑 / 违建 / 取土 / 植被生长 / 水浸</td><td>前后帧对比差异 ≥30%</td><td>🟡 关注</td></tr>
+<tr><td>3</td><td><strong class="ai">施工作业</strong></td><td>施工人员 / 机械 / 围挡 / 警示牌</td><td>保护区范围内人员/设备</td><td>🟡 关注</td></tr>
+</tbody>
+</table>
+
+<h3 class="ai">5.5 技术栈与工具链</h3>
+<table>
+<thead><tr><th>环节</th><th>工具 / 框架</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>检测框架</td><td>YOLOv8x（ultralytics）</td><td>多任务 + 高精度（mAP@0.5 ≥0.75 可达）</td></tr>
+<tr><td>备选框架</td><td>Detectron2</td><td>M2 评估后决定</td></tr>
+<tr><td>推理加速</td><td>TensorRT FP16</td><td>Orin NX 部署（&lt;30ms / 帧）</td></tr>
+<tr><td>数据标注</td><td>CVAT（自部署）</td><td>M4 起 1.5 万张精标 + 自标辅助</td></tr>
+<tr><td>训练平台</td><td>云端 A100/A800 租赁</td><td>M9-M11 月租 2,000 元</td></tr>
+<tr><td>数据回灌</td><td>Qt 客户端一键导出</td><td>触发录像自动入库</td></tr>
+<tr><td>验证指标</td><td>mAP@0.5 / 召回 / 误报率</td><td>每日训练日志归档</td></tr>
+</tbody>
+</table>
+
+<h3 class="ai">5.6 训练时间线（11 个月滚动迭代）</h3>
+<table>
+<thead><tr><th>阶段</th><th>时间</th><th>数据量</th><th>里程碑</th></tr></thead>
+<tbody>
+<tr class="ai"><td><strong>预研期</strong></td><td>M2-M3</td><td>公开数据集</td><td>框架选型 + 基础 demo</td></tr>
+<tr class="ai"><td><strong>预训练</strong></td><td>M4-M5</td><td>公开 1 万张</td><td>CVAT 工具就绪</td></tr>
+<tr class="ai"><td><strong>采集 1</strong></td><td>M6-M7</td><td>500 张现场</td><td>推理引擎集成 Orin NX</td></tr>
+<tr class="ai"><td><strong>微调 V1</strong></td><td>M8-M9</td><td>2000 张精标</td><td>★A7-AI V1.0（mAP ≥0.65）</td></tr>
+<tr class="ai"><td><strong>采集 2</strong></td><td>M10</td><td>3000 张</td><td>★A8-AI 数据扩展</td></tr>
+<tr class="ai"><td><strong>微调 V2</strong></td><td>M11</td><td>5000 张</td><td>★A9-AI V2（mAP ≥0.75）</td></tr>
+<tr class="ai"><td><strong>验收</strong></td><td>M12</td><td>5000 张</td><td>★A10-AI 验收 + 实时告警</td></tr>
+</tbody>
+</table>
+
+<h3 class="ai">5.7 关键策略：预训练 + 现场微调</h3>
+<ul>
+<li><strong>复用 YOLOv8x 公开权重</strong>（COCO 80 类）→ 直接覆盖"车辆/行人"等基础类</li>
+<li><strong>铁路场景精标</strong>仅需 5000 张即可达 mAP@0.5 ≥0.75（行业经验值）</li>
+<li><strong>现场数据闭环</strong>：Qt 端一键导出 + 自动入库，触发录像快速积累</li>
+<li><strong>总投入 2.3 万</strong>（GPU 租赁 8,000 + 标注外包 15,000），不算 Orin NX 已有算力</li>
+</ul>
+
+<hr>
+
+<h2>六、项目预算（14 薪制）</h2>
+
+<h3>研发投入预算（公司总成本口径）</h3>
+<table>
+<thead>
+<tr><th>类别</th><th class="num">月数</th><th class="num">月薪</th><th class="num">年终奖（2 月）</th><th class="num">合计(元)</th><th>备注</th></tr>
+</thead>
+<tbody>
+<tr><td>赵庆尧薪资</td><td class="num">12</td><td class="num">20,000 × 12 = 240,000</td><td class="num">40,000</td><td class="num"><strong>280,000</strong></td><td>核心（10-8 启动）</td></tr>
+<tr><td>嵌入式薪资</td><td class="num">10.5</td><td class="num">25,000 × 10.5 = 262,500</td><td class="num">50,000</td><td class="num"><strong>312,500</strong></td><td>11-15 到岗</td></tr>
+<tr><td>PC 端薪资</td><td class="num">10.5</td><td class="num">18,000 × 10.5 = 189,000</td><td class="num">36,000</td><td class="num"><strong>225,000</strong></td><td>11-15 到岗</td></tr>
+<tr style="background: #dbeafe; font-weight: 700;"><td>直接薪资小计</td><td colspan="3"></td><td class="num"><strong>817,500</strong></td><td></td></tr>
+<tr style="background: #f1f5f9;"><td colspan="6"><strong>法定福利（公司部分）</strong></td></tr>
+<tr><td>公积金（12%）</td><td>—</td><td>—</td><td>—</td><td class="num"><strong>98,100</strong></td><td>按月薪基数</td></tr>
+<tr><td>社保（养老+医疗+失业+工伤+生育 ~30%）</td><td>—</td><td>—</td><td>—</td><td class="num"><strong>245,250</strong></td><td>按月薪基数</td></tr>
+<tr><td>商业补充保险</td><td>—</td><td>—</td><td>—</td><td class="num"><strong>6,000</strong></td><td>3 人 × 2,000/年</td></tr>
+<tr style="background: #dbeafe; font-weight: 700;"><td>法定福利小计</td><td colspan="3"></td><td class="num"><strong>349,350</strong></td><td></td></tr>
+<tr style="background: #f1f5f9;"><td colspan="6"><strong>运营开销</strong></td></tr>
+<tr><td>招聘费（猎头+平台）</td><td class="num">1</td><td>—</td><td>—</td><td class="num"><strong>20,000</strong></td><td>猎头加速</td></tr>
+<tr><td>办公场地租金</td><td class="num">12</td><td class="num">3,500</td><td>—</td><td class="num"><strong>42,000</strong></td><td>3 人工位</td></tr>
+<tr><td>办公设备折旧</td><td class="num">12</td><td class="num">800</td><td>—</td><td class="num"><strong>9,600</strong></td><td>桌椅/电脑/外设</td></tr>
+<tr><td>日常办公耗材</td><td class="num">12</td><td class="num">700</td><td>—</td><td class="num"><strong>8,400</strong></td><td>打印/文具/水电网分摊</td></tr>
+<tr><td>测试设备租赁</td><td class="num">2</td><td class="num">8,000</td><td>—</td><td class="num"><strong>16,000</strong></td><td>M8-9 短期租</td></tr>
+<tr><td>装车测试差旅</td><td class="num">4</td><td class="num">8,000</td><td>—</td><td class="num"><strong>32,000</strong></td><td>M8-11 路测</td></tr>
+<tr><td>通信/网络费</td><td class="num">12</td><td class="num">500</td><td>—</td><td class="num"><strong>6,000</strong></td><td>团队手机/网络</td></tr>
+<tr><td>团队建设</td><td class="num">1</td><td class="num">10,000</td><td>—</td><td class="num"><strong>10,000</strong></td><td>1 次团建</td></tr>
+<tr style="background: #dbeafe; font-weight: 700;"><td>运营开销小计</td><td colspan="3"></td><td class="num">144,000</td><td></td></tr>
+<tr><td>不可预见费（5%）</td><td>—</td><td>—</td><td>—</td><td class="num"><strong>~65,500</strong></td><td></td></tr>
+<tr style="background: #dbeafe; font-weight: 700;"><td>研发总投入</td><td colspan="3"></td><td class="num"><strong>1,376,350</strong></td><td><strong>约 137.6 万</strong></td></tr>
+<tr class="ai"><td colspan="6" style="color: #7c3aed; padding: 6px;"><strong>🤖 AI 异常识别训练预算（新增）</strong></td></tr>
+<tr><td>云端 GPU 训练机租赁（A100/A800）</td><td class="num">4</td><td class="num">2,000</td><td></td><td class="num"><strong>8,000</strong></td><td>M9-M11 月租</td></tr>
+<tr><td>AI 数据标注外包（精标 3000 张）</td><td>—</td><td>—</td><td>—</td><td class="num"><strong>15,000</strong></td><td>1.5 万张精标 + 自标辅助</td></tr>
+<tr class="ai"><td>AI 训练小计</td><td colspan="3"></td><td class="num">23,000</td><td>约 2.3 万</td></tr>
+</tbody>
+</table>
+
+<p><em>注：Orin NX 100 TOPS 推理算力免购置，TensorRT 部署零成本。硬件采购 124,130 元已独立列出，含外壳 4 次迭代 24,000 元。公积金/社保按 2026 年天津市标准估算（基数 × 比例）。</em></p>
+
+<h3>预算总计</h3>
+<ul>
+<li>直接薪资（赵庆尧+嵌入式+PC端）：<strong>817,500 元（52.0%）</strong></li>
+<li>法定福利（公积金+社保+商保）：<strong>349,350 元（22.2%）</strong></li>
+<li>运营开销（招聘+办公+差旅）：<strong>144,000 元（9.2%）</strong></li>
+<li>不可预见费（5%）：<strong>65,500 元（4.2%）</strong></li>
+<li>🤖 AI 训练（GPU+标注）：<strong>23,000 元（1.5%）</strong></li>
+<li><strong>小计（研发投入+AI）：1,399,350 元（88.9%）</strong></li>
+<li>硬件采购（独立列出）：<strong>124,130 元（7.9%）</strong></li>
+<li><strong>合计：1,523,480 元</strong></li>
+</ul>
+
+<p><strong>项目总预算：约 152.3 万元</strong>（含 14 薪 + 法定福利 + AI 训练 + 硬件）</p>
+
+<hr>
+
+<h2>七、关键技术攻关点</h2>
+
+<table>
+<thead>
+<tr><th>难点</th><th>解决路径</th><th>负责人</th><th>风险等级</th></tr>
+</thead>
+<tbody>
+<tr><td>点云运动畸变</td><td>IMU 辅助去畸变（FAST-LIO2 内置）</td><td>赵庆尧</td><td>🟡 中</td></tr>
+<tr><td>多传感器时间同步</td><td>PCB 板 PPS/PTP 分发，误差 &lt; 100μs</td><td>赵庆尧 + 嵌入式</td><td>🟡 中</td></tr>
+<tr><td>LiDAR-相机外参标定</td><td>手眼标定 + 自研工具</td><td>赵庆尧</td><td>🟢 低</td></tr>
+<tr><td>RTK 失锁下定位</td><td>INS/GNSS 组合导航（UMD982 + IMU）</td><td>赵庆尧</td><td>🟢 低</td></tr>
+<tr><td>车顶振动影响</td><td>钢丝减震×8 + 软硬件滤波</td><td>赵庆尧</td><td>🟢 低</td></tr>
+<tr><td>Orin NX 散热</td><td>风扇主动散热 + 散热片</td><td>嵌入式</td><td>🟡 中</td></tr>
+<tr><td>长时间数据存储</td><td>17TB 混合存储</td><td>嵌入式</td><td>🟢 低</td></tr>
+<tr><td>动态场景 SLAM</td><td>FAST-LIO2 + 动态点云滤除</td><td>赵庆尧</td><td>🟠 高</td></tr>
+<tr class="ai"><td>AI 多任务训练</td><td>YOLOv8x 预训练 + 现场 5000 张微调</td><td>PC 端</td><td>🟡 中</td></tr>
+<tr class="ai"><td>Orin NX AI 部署</td><td>TensorRT FP16 + ROS2 集成</td><td>PC 端</td><td>🟡 中</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>八、风险与缓解</h2>
+
+<table>
+<thead>
+<tr><th>风险</th><th>影响</th><th>概率</th><th>缓解措施</th></tr>
+</thead>
+<tbody>
+<tr><td>招聘延迟（11-15 死线）</td><td>Month 2 黄金期损失</td><td>🟠 高</td><td>10-8 即启动；多渠道同步；猎头加速</td></tr>
+<tr><td>硬件 Month 7 未达标</td><td>联调延迟</td><td>🟠 高</td><td>Month 1 即开始关键器件采购；并行作业</td></tr>
+<tr><td>上车联调拖期</td><td>验收延期</td><td>🟠 高</td><td>10-30 即启动铁路局协调</td></tr>
+<tr><td>SLAM 精度不达标</td><td>数据质量差</td><td>🟠 高</td><td>Month 6 即开始仿真；备选 LeGO-LOAM</td></tr>
+<tr class="ai"><td>PC 端单人多任务压力（Qt+ROS2+AI）</td><td>上位机延期</td><td>🟡 中</td><td>候选人必须 AI+Qt 全栈；M3 即开始 AI 预研；YOLOv8 框架成熟</td></tr>
+<tr class="ai"><td>AI 多任务训练时间紧</td><td>AI 验收不达标</td><td>🟡 中</td><td>预训练模型+现场微调（5000 张即可达 mAP≥0.75）；M6 起每周采集 200 张</td></tr>
+<tr><td>PC 端开发窗口期短</td><td>上位机延期</td><td>🟡 中</td><td>前期基础→联调期完善</td></tr>
+<tr><td>外壳 4 次迭代成本</td><td>略高</td><td>🟡 中</td><td>骨架通用 + 上下盖板迭代</td></tr>
+<tr><td>PCB 一次成功率</td><td>回板延期</td><td>🟡 中</td><td>10 片批量；预留备件</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>九、关键依赖与外部接口</h2>
+
+<table>
+<thead>
+<tr><th>接口</th><th>责任方</th><th>时间窗口</th></tr>
+</thead>
+<tbody>
+<tr><td>XT32 渠道商</td><td>赵庆尧</td><td>Month 1 询价 / Month 2 下单</td></tr>
+<tr><td>嘉立创 PCB</td><td>赵庆尧</td><td>Month 3 投板</td></tr>
+<tr><td>CNC 加工厂</td><td>赵庆尧</td><td>Month 5 / M7 / M8 / M11 四次下单</td></tr>
+<tr><td>铁路局测试许可</td><td>赵庆尧</td><td>Month 1 末（10-30）启动协调</td></tr>
+<tr><td>测试线路</td><td>铁路局</td><td>Month 8-11</td></tr>
+<tr class="ai"><td>云端 GPU 租赁（新增）</td><td>PC 端</td><td>Month 9-11 短期租赁</td></tr>
+<tr class="ai"><td>数据标注外包（新增）</td><td>PC 端</td><td>Month 8-11 渐进交付</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>十、文档清单（V1.0 交付物）</h2>
+
+<ol>
+<li>《需求规格说明书 V1.0》— 2026-10-20（★A1）</li>
+<li>《硬件原理图 + PCB 文件》— 2027-01-15（★A3）</li>
+<li>《外壳结构图（v1~v4 迭代版）》— 2027-01 ~ 2027-09</li>
+<li>《嵌入式固件源码 + 烧录工具》— 2027-04-15（★A5）</li>
+<li>《PC 端软件安装包 + 用户手册》— 2027-09（联调完善）</li>
+<li>《SLAM 算法说明》— 2027-06</li>
+<li class="ai"><strong>《AI 算法说明（V2.0 多任务）》</strong>— 2027-06（紫色高亮，新增）</li>
+<li class="ai"><strong>《AI 训练报告（数据集 + 调参记录）》</strong>— 2027-09（新增）</li>
+<li>《样机 V1.0 测试报告》— 2027-04-15（★A5）</li>
+<li>《上车联调报告》— 2027-07-07（★A7）</li>
+<li>《多场景实测报告》— 2027-09-07（★A8）</li>
+<li class="ai"><strong>《AI 模型 V2.0 验收报告（mAP + 实时告警）》</strong>— 2027-09-30（★A10-AI，新增）</li>
+<li>《项目总结报告 + 量产包》— 2027-09-30（★A10）</li>
+</ol>
+
+<hr>
+
+<h2>十一、立即行动项（10-8 启动月）</h2>
+
+<h3>W1（10-8 ~ 10-14）启动周</h3>
+<ul>
+<li><strong>10-8</strong>：项目启动会议（赵庆尧 + 团队）</li>
+<li><strong>10-8</strong>：招聘 JD 发布（武大测绘/遥感 + AI 全栈要求）</li>
+<li><strong>10-10</strong>：XT32/Orin NX/IMU/相机批量询价</li>
+<li><strong>10-12</strong>：★A1 需求冻结评审启动</li>
+</ul>
+
+<h3>W2（10-15 ~ 10-21）招聘筛选</h3>
+<ul>
+<li><strong>10-15</strong>：简历筛选 + 初试</li>
+<li><strong>10-18</strong>：XT32 渠道谈判</li>
+<li><strong>10-20</strong>：★A1 需求冻结评审 + 《需求规格说明书 V1.0》</li>
+</ul>
+
+<h3>W3（10-22 ~ 10-28）面试</h3>
+<ul>
+<li><strong>10-22</strong>：现场面试（武汉）</li>
+<li><strong>10-25</strong>：关键器件下单（XT32/IMU/相机/UMD982）</li>
+<li><strong>10-28</strong>：铁路局初步沟通测试线路</li>
+</ul>
+
+<h3>W4（10-29 ~ 11-7）offer + 协调</h3>
+<ul>
+<li><strong>10-29</strong>：发放 offer + 签约</li>
+<li><strong>10-30</strong>：与铁路局正式沟通测试许可 + 时间窗</li>
+<li><strong>11-7</strong>：招聘入职准备完成</li>
+<li><strong>11-15</strong>：★A2 嵌入式 + PC 端（AI 全栈）到岗 ✅</li>
+</ul>
+
+<hr>
+
+<blockquote>
+<strong>📌 核心原则：</strong>前 6 月聚焦硬件（传感器+外壳+PCB+工控机），第 7 月上车联调时同步推进上位机完善 + AI 异常识别（多任务），<strong>Month 7~9 是硬件、软件、AI 三方融合的关键期</strong>。AI 模块 11 个月滚动迭代，从 M2 预研到 M12 V2.0 验收。
+</blockquote>
+
+<hr>
+
+<p style="text-align: center; font-size: 11px; color: #64748b;">
+📄 项目：车载式铁路周边环境巡检设备 · 版本：<strong>V2.10（含 AI 异常识别模块）</strong><br>
+编制日期：2026-09-08 · 启动 2026-10-08 · 验收 2027-09-30 · 总预算约 152.3 万元 · 12 个月周期
+</p>
+
+</body>
+</html>

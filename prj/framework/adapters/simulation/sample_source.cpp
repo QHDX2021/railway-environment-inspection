@@ -1,0 +1,2 @@
+#include "adapters/simulation/sample_source.hpp"
+namespace rail { SourceResult SimulationSource::next(Record&r){if(stopped_||current_>=limit_*4)return {Status::success(),true};size_t n=current_++;r.type=uint16_t(n%4+1);r.stream=uint16_t(n%4);r.device_id="simulation";r.sequence=n/4;r.time={uint64_t(n/4),1000,1,TimeQuality::Locked};r.host_monotonic_ns=n*1000000;r.simulated=true;r.payload={uint8_t(n),uint8_t(n>>8)};return {Status::success(),false};}}

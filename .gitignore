@@ -1,0 +1,28 @@
+# Local agent/editor state
+.omc/
+.superpowers/
+08_系统临时/
+.vs/
+*.user
+*.suo
+bash.exe.stackdump
+
+# CMake/MSVC build products
+**/build/
+*.obj
+*.pdb
+*.ilk
+*.lib
+*.exe
+*.dll
+*.tlog/
+
+# Generated verification output
+prj/evidence/task9/
+prj/framework/evidence/
+prj/web_capture/*/response.html
+**/__pycache__/
+*.pyc
+
+# Preserved pre-existing framework repository history
+prj/framework/.git-preserved/
